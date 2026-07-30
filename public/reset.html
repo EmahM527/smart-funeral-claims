@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password | Smart Funeral Claims</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); min-height: 100vh; margin: 0; }
+    .auth-wrapper { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 70px); padding: 2rem 1rem; }
+    .auth-card { width: 100%; max-width: 420px; background: #fff; border-radius: 20px; box-shadow: 0 8px 40px rgba(25,118,210,0.15); padding: 2.5rem 2rem; }
+    .auth-card .brand { display: flex; align-items: center; gap: 0.7rem; justify-content: center; margin-bottom: 1.5rem; }
+    .auth-card .brand img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .auth-card .brand span { font-size: 1.1rem; font-weight: 700; color: #1976d2; }
+    .auth-card h2 { color: #1565c0; text-align: center; margin: 0 0 0.7rem; font-size: 1.6rem; }
+    .auth-card p.sub { color: #666; text-align: center; margin-bottom: 1.5rem; font-size: 0.97rem; }
+    .auth-card input { display: block; width: 100%; margin-bottom: 1rem; padding: 0.8rem 1rem; border-radius: 10px; border: 1.5px solid #bbdefb; font-size: 1rem; outline: none; transition: border 0.2s; background: #f6faff; }
+    .auth-card input:focus { border-color: #1976d2; background: #fff; }
+    .auth-card button[type=submit] { display: block; width: 100%; padding: 0.85rem; background: linear-gradient(90deg, #1976d2, #42a5f5); color: #fff; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+    .auth-card button[type=submit]:hover { opacity: 0.93; transform: translateY(-1px); }
+    .auth-card .msg { color: #2e7d32; text-align: center; margin-top: 0.7rem; font-size: 0.97rem; }
+    .auth-card .error { color: #d32f2f; text-align: center; font-size: 0.93rem; margin-top: 0.5rem; }
+    .auth-card .footer-text { text-align: center; margin-top: 1.2rem; color: #555; font-size: 0.97rem; }
+    .auth-card .footer-text a { color: #1976d2; font-weight: 600; text-decoration: none; }
+    .auth-card .footer-text a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo-section">
+      <img src="logo.png" alt="Company Logo" class="logo">
+      <span class="company-name">Smart Funeral Claims</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="claims.html">Claims</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="brand"><img src="logo.png" alt="Logo"><span>Smart Funeral Claims</span></div>
+      <h2>Reset Password</h2>
+      <p class="sub">Enter your email and we'll send you a link to reset your password.</p>
+      <form id="resetForm">
+        <input type="email" id="resetEmail" placeholder="Email address" required>
+        <button type="submit">Send Reset Email</button>
+        <div id="resetMsg" class="msg"></div>
+        <div id="resetError" class="error"></div>
+      </form>
+      <p class="footer-text">Back to <a href="login.html">Login</a></p>
+    </div>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script type="module">
+    import firebaseConfig from './firebaseConfig.js';
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    document.getElementById('resetForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('resetEmail').value;
+      document.getElementById('resetMsg').textContent = '';
+      document.getElementById('resetError').textContent = '';
+      try {
+        await auth.sendPasswordResetEmail(email);
+        document.getElementById('resetMsg').textContent = 'Reset email sent!';
+      } catch (err) {
+        document.getElementById('resetError').textContent = err.message;
+      }
+    };
+  </script>
+</body>
+</html>

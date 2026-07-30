@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | Smart Funeral Claims</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: url('register.jpg') center/cover no-repeat fixed;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 30, 60, 0.62);
+      z-index: 0;
+    }
+    .navbar { position: relative; z-index: 10; }
+    .auth-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255,255,255,0.97);
+      border-radius: 20px;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.35);
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(6px);
+    }
+    .auth-card .brand { display: flex; align-items: center; gap: 0.7rem; justify-content: center; margin-bottom: 1.2rem; }
+    .auth-card .brand img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .auth-card .brand span { font-size: 1.1rem; font-weight: 700; color: #1976d2; }
+    .auth-card h2 { color: #1565c0; text-align: center; margin: 0 0 1.3rem; font-size: 1.7rem; }
+    .input-row { display: flex; gap: 0.8rem; }
+    .input-row input { flex: 1; }
+    .auth-card input { display: block; width: 100%; margin-bottom: 1rem; padding: 0.82rem 1rem; border-radius: 10px; border: 1.5px solid #bbdefb; font-size: 1rem; outline: none; transition: border 0.2s; background: #f6faff; }
+    .auth-card input:focus { border-color: #1976d2; background: #fff; }
+    .auth-card button[type=submit] { display: block; width: 100%; padding: 0.88rem; background: linear-gradient(90deg, #1565c0, #42a5f5); color: #fff; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; letter-spacing: 0.03em; transition: opacity 0.2s, transform 0.1s; margin-top: 0.3rem; }
+    .auth-card button[type=submit]:hover { opacity: 0.92; transform: translateY(-2px); }
+    .auth-card .error { color: #d32f2f; text-align: center; font-size: 0.93rem; margin-top: 0.5rem; }
+    .auth-card .footer-text { text-align: center; margin-top: 1.2rem; color: #555; font-size: 0.97rem; }
+    .auth-card .footer-text a { color: #1976d2; font-weight: 600; text-decoration: none; }
+    .auth-card .footer-text a:hover { text-decoration: underline; }
+    /* Password strength gauge */
+    .strength-wrapper { margin-top: -0.5rem; margin-bottom: 1rem; }
+    .strength-bar { display: flex; gap: 5px; height: 6px; border-radius: 4px; overflow: hidden; }
+    .strength-bar span { flex: 1; border-radius: 4px; background: #e0e0e0; transition: background 0.3s; }
+    .strength-label { font-size: 0.82rem; margin-top: 4px; font-weight: 600; color: #888; transition: color 0.3s; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo-section">
+      <img src="logo.png" alt="Company Logo" class="logo">
+      <span class="company-name">Smart Funeral Claims</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="claims.html">Claims</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="brand"><img src="logo.png" alt="Logo"><span>Smart Funeral Claims</span></div>
+      <h2>Create Account</h2>
+      <form id="registerForm">
+        <div class="input-row">
+          <input type="text" id="registerFirstName" placeholder="First Name" required>
+          <input type="text" id="registerLastName" placeholder="Last Name" required>
+        </div>
+        <input type="tel" id="registerPhone" placeholder="Phone Number" required>
+        <input type="text" id="registerIdNumber" placeholder="SA ID Number" required>
+        <label style="font-size:0.88rem;color:#555;margin-bottom:0.2rem;display:block;">Date of Birth</label>
+        <input type="date" id="registerDob" required>
+        <input type="email" id="registerEmail" placeholder="Email Address" required>
+        <input type="password" id="registerPassword" placeholder="Password (min 6 chars)" required>
+        <div class="strength-wrapper">
+          <div class="strength-bar">
+            <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+          </div>
+          <div class="strength-label" id="strengthLabel">Password strength</div>
+        </div>
+        <button type="submit">Create Account</button>
+        <div id="registerError" class="error"></div>
+      </form>
+      <p class="footer-text">Already have an account? <a href="login.html">Login</a></p>
+    </div>
+  </div>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>(function(){ emailjs.init({ publicKey: 'YOUR_EMAILJS_PUBLIC_KEY' }); })();</script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script type="module">
+    import firebaseConfig from './firebaseConfig.js';
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+    // Password strength gauge
+    document.getElementById('registerPassword').addEventListener('input', function() {
+      const val = this.value;
+      const segs = [document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3'), document.getElementById('s4')];
+      const label = document.getElementById('strengthLabel');
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const colors = ['#e53935', '#fb8c00', '#fdd835', '#43a047'];
+      const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+      segs.forEach((s, i) => { s.style.background = i < score ? colors[score - 1] : '#e0e0e0'; });
+      label.textContent = val.length === 0 ? 'Password strength' : labels[score - 1] || 'Weak';
+      label.style.color = val.length === 0 ? '#888' : colors[score - 1] || '#e53935';
+    });
+
+    document.getElementById('registerForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const firstName = document.getElementById('registerFirstName').value;
+      const lastName = document.getElementById('registerLastName').value;
+      const phone = document.getElementById('registerPhone').value;
+      const idNumber = document.getElementById('registerIdNumber').value;
+      const dob = document.getElementById('registerDob').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      document.getElementById('registerError').textContent = '';
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        const displayName = firstName + ' ' + lastName;
+        await user.updateProfile({ displayName });
+
+        // Generate unique policy number: SFC-YYYY-XXXXXXXX
+        const year    = new Date().getFullYear();
+        const chars   = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let   suffix  = '';
+        const arr     = new Uint8Array(8);
+        crypto.getRandomValues(arr);
+        arr.forEach(b => { suffix += chars[b % chars.length]; });
+        const policyNumber = `SFC-${year}-${suffix}`;
+
+        // Save full profile to Firestore so admin can see it
+        await db.collection('users').doc(user.uid).set({
+          displayName,
+          firstName,
+          lastName,
+          phone,
+          idNumber,
+          dob,
+          email,
+          policyNumber,
+          role:      'user',
+          status:    'active',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Log registration activity
+        await db.collection('activityLogs').add({
+          type:        'register',
+          userId:      user.uid,
+          userEmail:   email,
+          userName:    displayName,
+          description: `New user registered: ${email} — Policy: ${policyNumber}`,
+          timestamp:   firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Send welcome email with policy number via EmailJS
+        // Template variables: to_name, to_email, policy_number
+        // Create a template in EmailJS dashboard with these variables.
+        try {
+          await emailjs.send('YOUR_SERVICE_ID', 'YOUR_WELCOME_TEMPLATE_ID', {
+            to_name:       displayName,
+            to_email:      email,
+            policy_number: policyNumber,
+            support_email: 'support@smartfuneralclaims.co.za',
+            company_name:  'Smart Funeral Claims'
+          });
+        } catch (emailErr) {
+          // Email send failure is non-fatal — user still gets redirected
+          console.warn('Welcome email not sent:', emailErr);
+        }
+
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        const map = {
+          'auth/email-already-in-use': 'An account with this email already exists.',
+          'auth/weak-password':        'Password must be at least 6 characters.',
+          'auth/invalid-email':        'Invalid email address.'
+        };
+        document.getElementById('registerError').textContent = map[err.code] || err.message;
+      }
+    };
+  </script>
+</body>
+</html>

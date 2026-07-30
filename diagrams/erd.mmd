@@ -1,0 +1,30 @@
+---
+title: ERD - Smart Funeral Claims Platform
+---
+
+erDiagram
+  USERS ||--o{ CLAIMS : submits
+  CLAIMS ||--|{ DOCUMENTS : has
+  USERS {
+    string id PK
+    string name
+    string email
+    string passwordHash
+    string role
+    string createdAt
+  }
+  CLAIMS {
+    string id PK
+    string userId FK
+    string policyNumber
+    string status
+    string createdAt
+    string updatedAt
+  }
+  DOCUMENTS {
+    string id PK
+    string claimId FK
+    string fileName
+    string fileUrl
+    string uploadedAt
+  }

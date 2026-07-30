@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easy Claims Guide | Smart Funeral Claims</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── Hero ── */
+    .ec-hero {
+      position: relative;
+      min-height: 300px;
+      display: flex; align-items: center; justify-content: center;
+      background: url('claims-bg.jpg') center/cover no-repeat;
+    }
+    .ec-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,30,60,0.68);
+    }
+    .ec-hero-content {
+      position: relative; z-index: 1;
+      text-align: center; padding: 3.5rem 1rem;
+      max-width: 700px;
+    }
+    .ec-hero-content h1 { color: #fff; font-size: 2.7rem; margin: 0 0 0.7rem; }
+    .ec-hero-content p  { color: #bbdefb; font-size: 1.12rem; margin: 0 0 1.6rem; }
+    .ec-hero-content .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .ec-hero-content .btn-primary {
+      padding: 0.82rem 1.9rem;
+      background: linear-gradient(90deg,#1976d2,#42a5f5);
+      color: #fff; border-radius: 10px; font-weight: 700;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .ec-hero-content .btn-outline {
+      padding: 0.82rem 1.9rem;
+      border: 2px solid #fff; color: #fff;
+      border-radius: 10px; font-weight: 700;
+      text-decoration: none; transition: background 0.2s, color 0.2s;
+    }
+    .ec-hero-content .btn-primary:hover { opacity: 0.88; }
+    .ec-hero-content .btn-outline:hover { background: #fff; color: #1565c0; }
+
+    /* ── Stat bar ── */
+    .stat-bar {
+      background: #1565c0;
+      padding: 1.2rem 1rem;
+    }
+    .stat-bar-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;
+    }
+    .stat-item { text-align: center; color: #fff; }
+    .stat-item .stat-num { font-size: 1.9rem; font-weight: 800; color: #bbdefb; }
+    .stat-item .stat-label { font-size: 0.82rem; opacity: 0.85; }
+
+    /* ── Section wrapper ── */
+    .ec-section { padding: 4rem 1rem; max-width: 1100px; margin: 0 auto; }
+    .ec-section-title {
+      text-align: center; color: #1565c0;
+      font-size: 2rem; margin-bottom: 0.5rem;
+    }
+    .ec-section-sub {
+      text-align: center; color: #555; font-size: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Step cards ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .step-card {
+      background: #fff;
+      border: 2px solid #bbdefb;
+      border-radius: 18px;
+      padding: 2rem 1.5rem 1.6rem;
+      text-align: center;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .step-card:hover {
+      box-shadow: 0 8px 30px rgba(25,118,210,0.13);
+      transform: translateY(-4px);
+    }
+    .step-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg,#1976d2,#42a5f5);
+      color: #fff; width: 30px; height: 30px; border-radius: 50%;
+      font-size: 0.85rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-icon {
+      width: 60px; height: 60px; border-radius: 16px;
+      background: #e3f2fd;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .step-icon svg { width: 32px; height: 32px; }
+    .step-card h3 { color: #1565c0; font-size: 1.05rem; margin: 0 0 0.5rem; }
+    .step-card p  { color: #555; font-size: 0.9rem; margin: 0; line-height: 1.55; }
+
+    /* connector arrow between step cards */
+    .steps-grid .step-card:not(:last-child)::after {
+      display: none; /* handled visually by layout */
+    }
+
+    /* ── Flow diagram section ── */
+    .diagram-section { background: #f0f7ff; padding: 4rem 1rem; }
+    .diagram-inner {
+      max-width: 860px; margin: 0 auto;
+    }
+    .diagram-card {
+      background: #fff; border-radius: 20px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 4px 24px rgba(25,118,210,0.10);
+      border: 1.5px solid #bbdefb;
+    }
+    .mermaid { overflow-x: auto; }
+
+    /* ── Docs strip ── */
+    .docs-strip { background: #1565c0; padding: 3rem 1rem; }
+    .docs-strip-inner {
+      max-width: 1000px; margin: 0 auto; text-align: center;
+    }
+    .docs-strip h2 { color: #fff; font-size: 1.9rem; margin-bottom: 0.5rem; }
+    .docs-strip p  { color: #bbdefb; font-size: 0.97rem; margin-bottom: 2rem; }
+    .docs-pills {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem;
+    }
+    .doc-pill {
+      display: flex; align-items: center; gap: 0.55rem;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      color: #fff; border-radius: 50px;
+      padding: 0.55rem 1.2rem; font-size: 0.9rem; font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+    .doc-pill svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ── Tips section ── */
+    .tips-section { padding: 4rem 1rem; background: #fff; }
+    .tips-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+      gap: 1.4rem;
+    }
+    .tip-card {
+      background: #f6faff; border-radius: 14px;
+      padding: 1.5rem 1.4rem;
+      border-left: 4px solid #1976d2;
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .tip-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: #e3f2fd;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .tip-icon svg { width: 22px; height: 22px; }
+    .tip-card h4 { color: #1565c0; margin: 0 0 0.3rem; font-size: 0.97rem; }
+    .tip-card p  { color: #555; font-size: 0.88rem; margin: 0; line-height: 1.55; }
+
+    /* ── CTA banner ── */
+    .ec-cta {
+      background: linear-gradient(100deg,#1565c0 30%,#42a5f5);
+      padding: 3.5rem 1rem; text-align: center;
+    }
+    .ec-cta h2 { color: #fff; font-size: 2rem; margin: 0 0 0.7rem; }
+    .ec-cta p  { color: #e3f2fd; font-size: 1rem; margin: 0 0 1.5rem; }
+    .ec-cta .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .ec-cta a.btn-white {
+      padding: 0.85rem 2.1rem;
+      background: #fff; color: #1565c0;
+      border-radius: 10px; font-weight: 700; text-decoration: none;
+      transition: box-shadow 0.2s;
+    }
+    .ec-cta a.btn-ghost {
+      padding: 0.85rem 2.1rem;
+      border: 2px solid #fff; color: #fff;
+      border-radius: 10px; font-weight: 700; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .ec-cta a.btn-white:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
+    .ec-cta a.btn-ghost:hover { background: #fff; color: #1565c0; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo-section">
+      <img src="logo.png" alt="Company Logo" class="logo">
+      <span class="company-name">Smart Funeral Claims</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="claims.html">Claims</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+      <li><a href="easy-claim.html" class="active">Easy Claim</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <div class="ec-hero">
+    <div class="ec-hero-content">
+      <h1>Your Easy Claims Guide</h1>
+      <p>Everything you need to file your funeral insurance claim — clearly explained, step by step.</p>
+      <div class="hero-btns">
+        <a href="login.html" class="btn-primary">Start a Claim &rarr;</a>
+        <a href="resources/claim-form.html" target="_blank" class="btn-outline">Download Claim Form</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stat bar ── -->
+  <div class="stat-bar">
+    <div class="stat-bar-inner">
+      <div class="stat-item"><div class="stat-num">3–7</div><div class="stat-label">Business days to process</div></div>
+      <div class="stat-item"><div class="stat-num">24hr</div><div class="stat-label">Premium plan SLA</div></div>
+      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Secure online submission</div></div>
+      <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">Documents typically required</div></div>
+    </div>
+  </div>
+
+  <!-- ── Step cards ── -->
+  <div style="background:#f6faff; padding:4rem 1rem;">
+    <div style="max-width:1100px; margin:0 auto;">
+      <h2 class="ec-section-title">How to File a Claim</h2>
+      <p class="ec-section-sub">Follow these 7 steps to submit your claim quickly and correctly.</p>
+      <div class="steps-grid">
+
+        <div class="step-card">
+          <div class="step-badge">1</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h3>Register / Login</h3>
+          <p>Create your free account or log in to access the secure claims portal.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">2</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+          </div>
+          <h3>Start a New Claim</h3>
+          <p>Click "New Claim" on your dashboard and select the appropriate claim type.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">3</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <h3>Fill in Claim Details</h3>
+          <p>Enter the policy number, claimant information, and details about the deceased.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">4</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h3>Upload Documents</h3>
+          <p>Securely upload certified copies of all required supporting documents (PDF / JPG / PNG).</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">5</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </div>
+          <h3>Submit Claim</h3>
+          <p>Review all your information and submit. You'll receive an instant email confirmation.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">6</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <h3>Track Your Claim</h3>
+          <p>Monitor real-time progress on your dashboard. Receive SMS and email notifications at every stage.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-badge">7</div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <h3>Receive Payout</h3>
+          <p>Once approved, funds are transferred directly to the nominated beneficiary's bank account.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Flow diagram ── -->
+  <div class="diagram-section">
+    <div class="diagram-inner">
+      <h2 class="ec-section-title">Claims Flow Diagram</h2>
+      <p class="ec-section-sub">A visual overview of the entire claims process from start to payout.</p>
+      <div class="diagram-card">
+        <div class="mermaid">
+          graph TD
+            A([🔐 Sign Up / Login]) --> B([📋 Start New Claim])
+            B --> C([✏️ Fill in Claim Details])
+            C --> D([📁 Upload Documents])
+            D --> E([📤 Submit Claim])
+            E --> F([🔍 Admin Review])
+            F -->|Approved| G([✅ Claim Approved])
+            F -->|More Info Needed| H([📧 Feedback to Claimant])
+            H --> D
+            G --> I([💳 Payout to Beneficiary])
+
+            style A fill:#1976d2,color:#fff,stroke:#1565c0
+            style I fill:#2e7d32,color:#fff,stroke:#1b5e20
+            style G fill:#43a047,color:#fff,stroke:#2e7d32
+            style H fill:#f57c00,color:#fff,stroke:#e65100
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Required docs strip ── -->
+  <div class="docs-strip">
+    <div class="docs-strip-inner">
+      <h2>Documents You'll Need</h2>
+      <p>Have these ready before you begin to ensure the fastest possible processing.</p>
+      <div class="docs-pills">
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Death Certificate
+        </div>
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="14" y1="10" x2="19" y2="10"/><line x1="14" y1="14" x2="17" y2="14"/></svg>
+          ID of Deceased
+        </div>
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><polyline points="15 14 16.5 15.5 19 13"/></svg>
+          Claimant's ID
+        </div>
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Policy Document
+        </div>
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+          Bank Statement
+        </div>
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+          Proof of Relationship
+        </div>
+        <div class="doc-pill">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Completed Claim Form
+        </div>
+      </div>
+      <p style="margin-top:1.5rem;font-size:0.88rem;color:rgba(255,255,255,0.7);">All documents must be certified by a Commissioner of Oaths and not older than 3 months.</p>
+    </div>
+  </div>
+
+  <!-- ── Tips ── -->
+  <div class="tips-section">
+    <div style="max-width:1000px;margin:0 auto;">
+      <h2 class="ec-section-title">Tips for a Smooth Claim</h2>
+      <p class="ec-section-sub">Avoid common delays with these simple steps.</p>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div>
+            <h4>Certify all documents</h4>
+            <p>Every copy must be certified by a Commissioner of Oaths. Certifications must be dated within the last 3 months.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div>
+            <h4>Scan clearly</h4>
+            <p>Use a flat scan or a well-lit photo with all four corners visible. Blurry or cropped documents will be returned.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <h4>Submit within 6 months</h4>
+            <p>Claims must be submitted within 6 months of the date of death. Don't wait — early submission speeds up payout.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <h4>Keep your email active</h4>
+            <p>All status updates and requests for additional info are sent via email. Check your inbox and spam folder regularly.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div>
+            <h4>Verify bank details</h4>
+            <p>Ensure the account holder name matches the claimant's ID exactly. Mismatched details delay or block payouts.</p>
+          </div>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.58 1.25h3a2 2 0 0 1 2 1.72c.13 1 .37 1.96.72 2.88a2 2 0 0 1-.45 2.11L7.91 9.23a16 16 0 0 0 6.86 6.86l1.27-.95a2 2 0 0 1 2.11-.45c.92.35 1.88.59 2.88.72A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <h4>Contact us if unsure</h4>
+            <p>Our support team is available Mon–Fri 08:00–17:00. Call +27 11 234 5678 or email us before submitting if you have questions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CTA Banner ── -->
+  <div class="ec-cta">
+    <h2>Ready to File Your Claim?</h2>
+    <p>Log in or create a free account and complete the process in minutes.</p>
+    <div class="cta-btns">
+      <a href="login.html" class="btn-white">Log In &rarr;</a>
+      <a href="register.html" class="btn-ghost">Create Account</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div>
+        <strong>Contact:</strong> info@smartfuneralclaims.com<br>
+        <strong>Phone:</strong> +27 11 234 5678
+      </div>
+      <div>
+        <strong>Address:</strong> 123 Blue Avenue, Johannesburg, South Africa
+      </div>
+    </div>
+    <p>&copy; 2026 Smart Funeral Claims. All rights reserved.</p>
+  </footer>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'base',
+      themeVariables: { primaryColor: '#1976d2', primaryTextColor: '#fff', lineColor: '#1565c0', edgeLabelBackground: '#e3f2fd' }
+    });
+  </script>
+</body>
+</html>

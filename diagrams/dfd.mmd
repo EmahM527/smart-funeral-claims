@@ -1,0 +1,14 @@
+---
+title: Data Flow Diagram (DFD) - Smart Funeral Claims Platform
+---
+
+flowchart TD
+  User[User] -->|Submits Claim| ClaimsForm[Claim Form]
+  ClaimsForm -->|Sends Data| Backend[Backend Server]
+  Backend -->|Stores| Firestore[(Firestore DB)]
+  Backend -->|Stores| Storage[(Firebase Storage)]
+  Backend -->|Sends Email| EmailJS[EmailJS]
+  Admin[Admin] -->|Reviews| Backend
+  Backend -->|Updates Status| Firestore
+  User -->|Tracks Claim| Backend
+  Backend -->|Sends Status| User

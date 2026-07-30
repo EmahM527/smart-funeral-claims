@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open main website in browser",
+			"type": "shell",
+			"command": "start ../public/index.html",
+			"group": "build"
+		},
+		{
+			"label": "Open main website in browser (correct path)",
+			"type": "shell",
+			"command": "start public/index.html",
+			"group": "build"
+		}
+	]
+}

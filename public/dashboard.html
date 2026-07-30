@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard | Smart Funeral Claims</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:      #1565c0;
+      --blue-mid:  #1976d2;
+      --blue-light:#42a5f5;
+      --blue-pale: #e3f2fd;
+      --blue-bg:   #f0f7ff;
+      --sidebar-w: 240px;
+      --text:      #1a2744;
+      --muted:     #546e7a;
+      --border:    #dce8f5;
+      --surface:   #ffffff;
+      --radius:    14px;
+      --shadow:    0 2px 14px rgba(21,101,192,0.09);
+    }
+
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--blue-bg); color: var(--text); }
+
+    /* ── Auth guard overlay ── */
+    #authGuard {
+      position: fixed; inset: 0; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; flex-direction: column; gap: 1rem;
+    }
+    #authGuard .spinner {
+      width: 40px; height: 40px; border: 4px solid var(--blue-pale);
+      border-top-color: var(--blue-mid); border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Layout ── */
+    .shell { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: linear-gradient(160deg, #0d1f44 0%, #1565c0 100%);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 200; transition: transform .25s;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: .75rem;
+      padding: 1.3rem 1.1rem 1.1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .sidebar-logo img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+    .sidebar-logo span { color: #fff; font-weight: 800; font-size: 1rem; line-height: 1.2; }
+    .sidebar-logo small { display: block; color: rgba(255,255,255,.55); font-size: .72rem; font-weight: 400; }
+
+    .sidebar-nav { flex: 1; padding: .9rem 0; overflow-y: auto; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .78rem 1.1rem;
+      color: rgba(255,255,255,.72); text-decoration: none;
+      font-size: .9rem; font-weight: 500;
+      transition: background .18s, color .18s;
+      cursor: pointer; border: none; background: none; width: 100%;
+      text-align: left; white-space: nowrap;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-item:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.18); color: #fff; border-right: 3px solid #90caf9; }
+    .nav-divider { border: none; border-top: 1px solid rgba(255,255,255,.1); margin: .5rem 0; }
+
+    .sidebar-footer {
+      padding: .9rem 1rem;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .user-pill {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .5rem .3rem; margin-bottom: .5rem;
+    }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, #42a5f5, #1565c0);
+      color: #fff; font-weight: 800; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .user-info { overflow: hidden; }
+    .user-info strong { display: block; color: #fff; font-size: .87rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-info span { color: rgba(255,255,255,.5); font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+
+    .logout-btn {
+      display: flex; align-items: center; gap: .6rem;
+      width: 100%; padding: .6rem .8rem;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px; color: rgba(255,255,255,.8);
+      font-size: .87rem; font-weight: 600; cursor: pointer;
+      transition: background .18s;
+    }
+    .logout-btn svg { width: 16px; height: 16px; }
+    .logout-btn:hover { background: rgba(255,82,82,.25); color: #fff; }
+
+    /* ── Main content ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .85rem 1.6rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(21,101,192,.06);
+    }
+    .topbar-left { display: flex; align-items: center; gap: .9rem; }
+    .menu-btn {
+      background: none; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: .35rem .42rem; cursor: pointer; display: none;
+      color: var(--muted); align-items: center;
+    }
+    .menu-btn svg { width: 20px; height: 20px; }
+    @media(max-width:768px){ .menu-btn { display: flex; } }
+    .topbar h2 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: .8rem; }
+    .topbar-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #42a5f5, #1565c0);
+      color: #fff; font-weight: 800; font-size: .88rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .new-claim-btn {
+      display: flex; align-items: center; gap: .4rem;
+      background: linear-gradient(90deg, var(--blue), var(--blue-light));
+      color: #fff; border: none; border-radius: 9px;
+      padding: .55rem 1.1rem; font-size: .87rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: opacity .2s;
+    }
+    .new-claim-btn:hover { opacity: .88; }
+
+    /* ── Sections ── */
+    .section { display: none; padding: 1.6rem; flex-direction: column; gap: 1.5rem; }
+    .section.active { display: flex; }
+
+    /* ── Welcome banner ── */
+    .welcome-banner {
+      background: linear-gradient(120deg, #0d1f44 0%, #1976d2 60%, #42a5f5 100%);
+      border-radius: var(--radius);
+      padding: 2rem 2.2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .welcome-text h2 { color: #fff; font-size: 1.5rem; margin-bottom: .3rem; }
+    .welcome-text p  { color: rgba(255,255,255,.75); font-size: .95rem; }
+    .welcome-banner a {
+      background: #fff; color: var(--blue); font-weight: 700;
+      border-radius: 10px; padding: .7rem 1.6rem;
+      text-decoration: none; font-size: .9rem; white-space: nowrap;
+      transition: box-shadow .2s;
+    }
+    .welcome-banner a:hover { box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+
+    /* ── Stat cards ── */
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+    @media(max-width:900px){ .stat-row { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:480px){ .stat-row { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 1.3rem 1.2rem; box-shadow: var(--shadow);
+      border-left: 4px solid transparent; display: flex; align-items: center; gap: 1rem;
+      transition: transform .18s;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-card.blue   { border-left-color: #1976d2; }
+    .stat-card.green  { border-left-color: #2e7d32; }
+    .stat-card.orange { border-left-color: #f57c00; }
+    .stat-card.purple { border-left-color: #7b1fa2; }
+    .stat-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-card.blue   .stat-icon { background: #e3f2fd; color: #1976d2; }
+    .stat-card.green  .stat-icon { background: #e8f5e9; color: #2e7d32; }
+    .stat-card.orange .stat-icon { background: #fff3e0; color: #f57c00; }
+    .stat-card.purple .stat-icon { background: #f3e5f5; color: #7b1fa2; }
+    .stat-icon svg { width: 22px; height: 22px; }
+    .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-lbl { font-size: .82rem; font-weight: 600; color: var(--muted); margin-top: .2rem; }
+
+    /* ── Claims table card ── */
+    .card {
+      background: var(--surface); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.4rem .8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-header h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .card-action {
+      background: var(--blue-pale); color: var(--blue);
+      border: none; border-radius: 7px; padding: .35rem .85rem;
+      font-size: .8rem; font-weight: 700; cursor: pointer;
+      text-decoration: none; transition: background .18s;
+    }
+    .card-action:hover { background: #bbdefb; }
+
+    .claims-table { width: 100%; border-collapse: collapse; }
+    .claims-table th {
+      background: var(--blue-bg); padding: .65rem 1.2rem;
+      text-align: left; font-size: .77rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .claims-table td {
+      padding: .8rem 1.2rem; font-size: .88rem; color: var(--text);
+      border-bottom: 1px solid var(--border); vertical-align: middle;
+    }
+    .claims-table tbody tr:last-child td { border-bottom: none; }
+    .claims-table tbody tr:hover { background: var(--blue-bg); }
+
+    /* Edit claim button in table */
+    .edit-claim-btn {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: #e3f2fd; color: #1565c0;
+      border: 1.5px solid #90caf9; border-radius: 7px;
+      padding: .25rem .65rem; font-size: .75rem; font-weight: 700;
+      cursor: pointer; transition: background .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .edit-claim-btn:hover { background: #bbdefb; border-color: #1976d2; }
+    .edit-claim-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ── Edit Claim Drawer ── */
+    #editDrawerOverlay {
+      position: fixed; inset: 0; background: rgba(10,30,60,.38);
+      z-index: 800; display: none; opacity: 0;
+      transition: opacity .25s;
+    }
+    #editDrawerOverlay.open { display: block; opacity: 1; }
+    #editDrawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 100%; max-width: 620px;
+      background: var(--surface); z-index: 801;
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -4px 0 32px rgba(21,101,192,.13);
+    }
+    #editDrawer.open { transform: translateX(0); }
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.4rem; background: linear-gradient(90deg,#0d1f44,#1565c0);
+      flex-shrink: 0;
+    }
+    .drawer-header h3 { color: #fff; font-size: 1.05rem; margin: 0; }
+    .drawer-header-meta { font-size: .78rem; color: #90caf9; margin-top: .2rem; }
+    .drawer-close {
+      background: rgba(255,255,255,.13); border: none; border-radius: 8px;
+      width: 34px; height: 34px; cursor: pointer; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .drawer-close:hover { background: rgba(255,255,255,.25); }
+    .drawer-body {
+      flex: 1; overflow-y: auto; padding: 1.4rem;
+    }
+    .drawer-footer {
+      padding: 1rem 1.4rem; border-top: 1px solid var(--border);
+      display: flex; gap: .75rem; flex-wrap: wrap; flex-shrink: 0;
+      background: var(--surface);
+    }
+    .drawer-save-btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: linear-gradient(90deg,var(--blue),var(--blue-light));
+      color: #fff; border: none; border-radius: 10px;
+      padding: .72rem 1.8rem; font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .drawer-save-btn:hover { opacity: .9; }
+    .drawer-save-btn:disabled { opacity: .55; cursor: default; }
+    .drawer-cancel-btn {
+      display: inline-flex; align-items: center;
+      background: none; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: .72rem 1.4rem; font-size: .95rem; font-weight: 600;
+      color: var(--muted); cursor: pointer; transition: border-color .15s, color .15s;
+    }
+    .drawer-cancel-btn:hover { border-color: #1976d2; color: #1565c0; }
+    /* Locked state banner */
+    .drawer-locked {
+      display: flex; align-items: center; gap: .75rem;
+      background: #fff8e1; border: 1.5px solid #ffe082;
+      border-radius: 10px; padding: .85rem 1rem; margin-bottom: 1.2rem;
+      font-size: .87rem; color: #e65100; font-weight: 600;
+    }
+    /* Existing doc chips */
+    .existing-doc-chip {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: #e8f5e9; color: #2e7d32;
+      border-radius: 20px; padding: .22rem .75rem;
+      font-size: .78rem; font-weight: 600; margin: .2rem .2rem 0 0;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: .22rem .7rem; border-radius: 20px;
+      font-size: .75rem; font-weight: 700; letter-spacing: .03em;
+    }
+    .badge.pending      { background: #fff3e0; color: #e65100; }
+    .badge.under_review { background: #e3f2fd; color: #1565c0; }
+    .badge.approved     { background: #e8f5e9; color: #2e7d32; }
+    .badge.rejected     { background: #fdecea; color: #c62828; }
+
+    .empty-claims {
+      text-align: center; padding: 3rem 1rem; color: var(--muted);
+    }
+    .empty-claims svg { color: #90caf9; margin-bottom: 1rem; }
+    .empty-claims p   { margin-bottom: 1.2rem; font-size: .95rem; }
+    .empty-claims a   {
+      display: inline-block; padding: .7rem 1.8rem;
+      background: linear-gradient(90deg, var(--blue), var(--blue-light));
+      color: #fff; border-radius: 10px; font-weight: 700; text-decoration: none;
+    }
+
+    /* ── Profile form ── */
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:600px){ .profile-grid { grid-template-columns: 1fr; } }
+
+    .field {
+      display: flex; flex-direction: column; gap: .35rem;
+    }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: .83rem; font-weight: 700; color: var(--text); }
+    .field input, .field select {
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: .7rem .95rem; font-size: .93rem; outline: none;
+      background: var(--blue-bg); color: var(--text);
+      transition: border-color .2s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--blue-mid); background: #fff; }
+    .field input:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
+
+    .save-btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: linear-gradient(90deg, var(--blue), var(--blue-light));
+      color: #fff; border: none; border-radius: 10px;
+      padding: .75rem 2rem; font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .save-btn:hover { opacity: .9; }
+    .save-btn:disabled { opacity: .6; cursor: default; }
+
+    .profile-avatar-row {
+      display: flex; align-items: center; gap: 1.5rem;
+      padding: 1.5rem; background: var(--blue-bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .profile-avatar-big {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #1976d2, #42a5f5);
+      color: #fff; font-weight: 800; font-size: 1.8rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .profile-avatar-info h3 { font-size: 1.1rem; color: var(--text); margin-bottom: .2rem; }
+    .profile-avatar-info p  { font-size: .85rem; color: var(--muted); }
+
+    /* ── Password section ── */
+    .pw-section { padding: 1.4rem; border-top: 1px solid var(--border); }
+    .pw-section h3 { font-size: .97rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; }
+    .pw-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media(max-width:700px){ .pw-grid { grid-template-columns: 1fr; } }
+
+    .form-msg {
+      border-radius: 9px; padding: .75rem 1rem;
+      font-size: .88rem; font-weight: 600; margin-top: .8rem;
+      display: none;
+    }
+    .form-msg.success { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; }
+    .form-msg.error   { background: #fdecea; color: #c62828; border: 1.5px solid #f5c6cb; }
+    .form-msg.info    { background: #e3f2fd; color: #1565c0; border: 1.5px solid #90caf9; }
+
+    /* ── Responsive sidebar ── */
+    @media(max-width:768px){
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+    }
+
+    /* ── Per-document upload slots ── */
+    .doc-slots-label {
+      font-size: .83rem; font-weight: 700; color: var(--text);
+      margin-bottom: .7rem; display: flex; align-items: center; gap: .55rem;
+    }
+    .doc-slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: .9rem;
+    }
+    .doc-slot {
+      border: 2px dashed #90caf9;
+      border-radius: 12px;
+      padding: .9rem 1rem;
+      background: var(--blue-bg);
+      transition: border-color .2s, background .2s, box-shadow .2s;
+      cursor: pointer;
+    }
+    .doc-slot:hover { border-color: var(--blue-mid); background: #e8f4ff; box-shadow: 0 2px 10px rgba(25,118,210,.08); }
+    .doc-slot.uploaded { border-color: #43a047; border-style: solid; background: #f1f8e9; cursor: default; }
+    .doc-slot.uploaded:hover { box-shadow: 0 2px 10px rgba(56,142,60,.1); }
+    .doc-slot-header { display: flex; align-items: flex-start; gap: .65rem; margin-bottom: .65rem; }
+    .doc-slot-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: #e3f2fd; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .2s;
+    }
+    .doc-slot.uploaded .doc-slot-icon { background: #c8e6c9; }
+    .doc-slot-meta { flex: 1; min-width: 0; }
+    .doc-slot-name { font-size: .87rem; font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: .14rem; }
+    .doc-slot-hint { font-size: .73rem; color: var(--muted); line-height: 1.35; }
+    .doc-slot-badge {
+      font-size: .67rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .05em; padding: .12rem .42rem; border-radius: 5px; flex-shrink: 0; align-self: flex-start; margin-top: .1rem;
+    }
+    .badge-req { background: #fce4ec; color: #c62828; }
+    .badge-opt { background: #e8f5e9; color: #2e7d32; }
+    .doc-slot-status { display: flex; align-items: center; gap: .45rem; font-size: .79rem; min-height: 22px; }
+    .doc-slot-status.empty { color: #90a4ae; }
+    .doc-slot-status.filled { color: #2e7d32; font-weight: 700; }
+    .doc-slot-filename { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-slot-remove {
+      background: none; border: none; cursor: pointer; color: #e53935;
+      font-size: .9rem; line-height: 1; padding: 0 0 0 .3rem; flex-shrink: 0;
+    }
+    .doc-slots-progress {
+      margin-top: .9rem; display: flex; align-items: center; gap: .8rem;
+      font-size: .81rem; color: var(--muted);
+    }
+    .doc-progress-bar {
+      flex: 1; height: 7px; background: #e0e0e0; border-radius: 4px; overflow: hidden;
+    }
+    .doc-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1976d2, #43a047);
+      border-radius: 4px; transition: width .35s;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth guard while Firebase checks login state -->
+<div id="authGuard">
+  <div class="spinner"></div>
+  <p style="color:#546e7a;font-size:.9rem;">Loading your dashboard…</p>
+</div>
+
+<div class="shell" id="shell" style="display:none;">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo.png" alt="Logo">
+      <div>
+        <span>Smart Funeral Claims</span>
+        <small>Member Portal</small>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-sec="overview" onclick="showSection('overview',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" data-sec="my-claims" onclick="showSection('my-claims',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        My Claims
+        <span id="claimCountBadge" style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:1px 8px;font-size:.72rem;font-weight:700;display:none;"></span>
+      </button>
+      <button class="nav-item" data-sec="file-claim" onclick="showSection('file-claim',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        File a Claim
+      </button>
+      <hr class="nav-divider">
+      <button class="nav-item" data-sec="profile" onclick="showSection('profile',this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </button>
+      <a class="nav-item" href="index.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Back to Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebarAvatar">U</div>
+        <div class="user-info">
+          <strong id="sidebarName">Loading…</strong>
+          <span id="sidebarEmail">—</span>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h2 id="pageTitle">Overview</h2>
+      </div>
+      <div class="topbar-right">
+        <button class="new-claim-btn" onclick="showSection('file-claim', document.querySelector('[data-sec=file-claim]'))">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Claim
+        </button>
+        <div class="topbar-avatar" id="topbarAvatar" onclick="showSection('profile', document.querySelector('[data-sec=profile]'))">U</div>
+      </div>
+    </div>
+
+    <!-- ══ OVERVIEW ══ -->
+    <section class="section active" id="sec-overview">
+      <div class="welcome-banner">
+        <div class="welcome-text">
+          <h2 id="welcomeMsg">Welcome back!</h2>
+          <p>Here's a summary of your account and claims status.</p>
+        </div>
+        <button class="new-claim-btn" style="padding:.8rem 1.8rem;font-size:.95rem;" onclick="showSection('file-claim', document.querySelector('[data-sec=file-claim]'))">
+          + File a New Claim
+        </button>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card blue">
+          <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total Claims</div></div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><div class="stat-val" id="st-pending">0</div><div class="stat-lbl">Pending</div></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="stat-val" id="st-approved">0</div><div class="stat-lbl">Approved</div></div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          <div><div class="stat-val" id="st-rejected">0</div><div class="stat-lbl">Rejected</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Claims</h3>
+          <button class="card-action" onclick="showSection('my-claims', document.querySelector('[data-sec=my-claims]'))">View All</button>
+        </div>
+        <div id="recentClaimsBody"></div>
+      </div>
+    </section>
+
+    <!-- ══ MY CLAIMS ══ -->
+    <section class="section" id="sec-my-claims">
+      <div class="card">
+        <div class="card-header">
+          <h3>All My Claims</h3>
+          <button class="card-action" onclick="showSection('file-claim', document.querySelector('[data-sec=file-claim]'))">+ New Claim</button>
+        </div>
+        <div id="allClaimsBody"></div>
+      </div>
+    </section>
+
+    <!-- ══ FILE A CLAIM ══ -->
+    <section class="section" id="sec-file-claim">
+      <div class="card">
+        <div class="card-header">
+          <h3>Submit a New Claim</h3>
+        </div>
+
+        <!-- Success state -->
+        <div id="claimSuccess" style="display:none;" class="empty-claims">
+          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <h3 style="color:#2e7d32;margin:.5rem 0;">Claim Submitted!</h3>
+          <p>Your claim has been received. We'll review it within 5–7 business days.</p>
+          <p style="margin-bottom:1.2rem;"><strong id="claimRefDisplay" style="color:#1565c0;font-size:1.05rem;"></strong></p>
+          <button onclick="resetClaimForm()" style="display:inline-block;padding:.7rem 1.8rem;background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;border-radius:10px;font-weight:700;border:none;cursor:pointer;">Submit Another Claim</button>
+        </div>
+
+        <!-- Form -->
+        <form id="claimForm" style="padding:1.5rem;" novalidate>
+          <div class="profile-grid">
+            <div class="field">
+              <label>Policy Number *</label>
+              <input type="text" id="cf-policy" placeholder="e.g. SFC-2024-001234" required>
+            </div>
+            <div class="field">
+              <label>Claim Type *</label>
+              <select id="cf-type" required>
+                <option value="">— Select —</option>
+                <option value="death_benefit">Death Benefit</option>
+                <option value="funeral_cover">Funeral Cover</option>
+                <option value="accidental_death">Accidental Death</option>
+                <option value="repatriation">Repatriation</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Your Full Name *</label>
+              <input type="text" id="cf-name" placeholder="Your full name" required>
+            </div>
+            <div class="field">
+              <label>Your SA ID Number *</label>
+              <input type="text" id="cf-id" placeholder="13-digit SA ID" required>
+            </div>
+            <div class="field">
+              <label>Deceased Full Name *</label>
+              <input type="text" id="cf-deceased" placeholder="Full name of the deceased" required>
+            </div>
+            <div class="field">
+              <label>Date of Death *</label>
+              <input type="date" id="cf-dod" required>
+            </div>
+            <div class="field">
+              <label>Relationship to Deceased *</label>
+              <select id="cf-rel" required>
+                <option value="">— Select —</option>
+                <option value="spouse">Spouse / Partner</option>
+                <option value="child">Child</option>
+                <option value="parent">Parent</option>
+                <option value="sibling">Sibling</option>
+                <option value="beneficiary">Named Beneficiary</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Contact Phone *</label>
+              <input type="tel" id="cf-phone" placeholder="+27 XX XXX XXXX" required>
+            </div>
+            <div class="field full">
+              <label>Bank Account for Payout *</label>
+              <input type="text" id="cf-bank" placeholder="Bank name + account number (e.g. FNB 62XXXXXXXXX)" required>
+            </div>
+            <div class="field full">
+              <label>Additional Notes</label>
+              <textarea id="cf-notes" rows="3" style="border:1.5px solid var(--border);border-radius:10px;padding:.7rem .95rem;font-size:.93rem;outline:none;background:var(--blue-bg);font-family:inherit;resize:vertical;width:100%;" placeholder="Any additional information…"></textarea>
+            </div>
+            <div class="field full">
+              <div class="doc-slots-label">
+                Supporting Documents
+                <span style="background:#fce4ec;color:#c62828;font-size:.67rem;font-weight:800;padding:.12rem .42rem;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;">5 Required</span>
+              </div>
+              <div class="doc-slots-grid" id="docSlotsGrid"></div>
+              <div class="doc-slots-progress">
+                <span id="docProgressText">0 of 5 required documents uploaded</span>
+                <div class="doc-progress-bar"><div class="doc-progress-fill" id="docProgressFill" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-msg" id="claimMsg"></div>
+          <div style="margin-top:1.3rem;">
+            <button type="submit" class="save-btn" id="claimSubmitBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Submit Claim
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ══ PROFILE ══ -->
+    <section class="section" id="sec-profile">
+      <div class="card">
+        <div class="profile-avatar-row">
+          <div class="profile-avatar-big" id="profileAvatarBig">U</div>
+          <div class="profile-avatar-info">
+            <h3 id="profileFullName">Loading…</h3>
+            <p id="profileEmail">—</p>
+            <p style="margin-top:.3rem;font-size:.85rem;">
+              <span style="background:#e3f2fd;color:#1565c0;border-radius:6px;padding:.15rem .55rem;font-weight:800;letter-spacing:.06em;font-size:.85rem;" id="profilePolicyBadge"></span>
+            </p>
+          </div>
+        </div>
+
+        <form id="profileForm" style="padding:1.4rem;" novalidate>
+          <div class="profile-grid">
+            <div class="field">
+              <label>First Name</label>
+              <input type="text" id="p-firstName" placeholder="First name">
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input type="text" id="p-lastName" placeholder="Last name">
+            </div>
+            <div class="field">
+              <label>Email Address</label>
+              <input type="email" id="p-email" disabled>
+            </div>
+            <div class="field">
+              <label>Phone Number</label>
+              <input type="tel" id="p-phone" placeholder="+27 XX XXX XXXX">
+            </div>
+            <div class="field">
+              <label>SA ID Number</label>
+              <input type="text" id="p-idNumber" placeholder="SA ID Number">
+            </div>
+            <div class="field">
+              <label>Date of Birth</label>
+              <input type="date" id="p-dob">
+            </div>
+            <div class="field full">
+              <label>Policy Number</label>
+              <div style="display:flex;align-items:center;gap:.8rem;">
+                <input type="text" id="p-policy" disabled style="flex:1;font-weight:700;color:#1565c0;letter-spacing:.06em;font-size:1rem;">
+                <button type="button" onclick="copyPolicy()" title="Copy policy number" style="background:#e3f2fd;border:1.5px solid #90caf9;border-radius:9px;padding:.5rem .85rem;cursor:pointer;color:#1565c0;font-size:.82rem;font-weight:700;white-space:nowrap;">Copy</button>
+              </div>
+              <p style="margin:.25rem 0 0;font-size:.78rem;color:#90a4ae;">Your unique policy number — keep this safe.</p>
+            </div>
+          </div>
+          <div class="form-msg" id="profileMsg"></div>
+          <div style="margin-top:1.2rem;">
+            <button type="submit" class="save-btn" id="profileSaveBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Changes
+            </button>
+          </div>
+        </form>
+
+        <div class="pw-section">
+          <h3>Change Password</h3>
+          <div class="pw-grid">
+            <div class="field">
+              <label>New Password</label>
+              <input type="password" id="p-newPw" placeholder="New password (min 6 chars)">
+            </div>
+            <div class="field">
+              <label>Confirm Password</label>
+              <input type="password" id="p-confirmPw" placeholder="Repeat new password">
+            </div>
+            <div class="field" style="justify-content:flex-end;">
+              <label style="visibility:hidden;">Action</label>
+              <button type="button" class="save-btn" onclick="changePassword()">
+                Update Password
+              </button>
+            </div>
+          </div>
+          <div class="form-msg" id="pwMsg"></div>
+
+          <div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border);">
+            <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem;">Or send a password reset link to your email:</p>
+            <button type="button" class="card-action" style="font-size:.88rem;padding:.5rem 1.2rem;" onclick="sendReset()">Send Reset Email</button>
+            <div class="form-msg" id="resetMsg"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /main -->
+
+  <!-- ══ EDIT CLAIM DRAWER ══ -->
+  <div id="editDrawerOverlay" onclick="closeEditDrawer()"
+       style="position:fixed;inset:0;background:rgba(10,30,60,.38);z-index:800;display:none;"
+  ></div>
+  <aside id="editDrawer"
+         style="position:fixed;top:0;right:0;bottom:0;width:100%;max-width:640px;background:#fff;z-index:801;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 32px rgba(21,101,192,.15);"
+         role="dialog" aria-modal="true" aria-label="Edit Claim">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;background:linear-gradient(90deg,#0d1f44,#1565c0);flex-shrink:0;">
+      <div>
+        <h3 style="color:#fff;font-size:1.05rem;margin:0;">Edit Claim</h3>
+        <div style="font-size:.78rem;color:#90caf9;margin-top:.2rem;" id="editDrawerMeta"></div>
+      </div>
+      <button onclick="closeEditDrawer()" title="Close"
+              style="background:rgba(255,255,255,.13);border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="editDrawerBody" style="flex:1;overflow-y:auto;padding:1.4rem;"></div>
+    <div id="editDrawerFooter" style="padding:1rem 1.4rem;border-top:1px solid #dce8f5;display:flex;gap:.75rem;flex-wrap:wrap;flex-shrink:0;background:#fff;">
+      <button id="editSaveBtn" onclick="saveEditedClaim()"
+              style="display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;border:none;border-radius:10px;padding:.72rem 1.8rem;font-size:.95rem;font-weight:700;cursor:pointer;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Changes
+      </button>
+      <button onclick="closeEditDrawer()"
+              style="display:inline-flex;align-items:center;background:none;border:1.5px solid #dce8f5;border-radius:10px;padding:.72rem 1.4rem;font-size:.95rem;font-weight:600;color:#546e7a;cursor:pointer;">
+        Cancel
+      </button>
+    </div>
+  </aside>
+
+</div><!-- /shell -->
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script type="module">
+  import firebaseConfig from './firebaseConfig.js';
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+
+  let currentUser = null;
+  let userProfile = {};
+  let myClaims    = [];
+  // ── Document slot definitions ──────────────────────────
+  const DOC_SLOTS = [
+    { id: 'death_cert',  label: 'Certified Death Certificate', hint: 'Certified copy from Dept. of Home Affairs (BI-1663)',  required: true  },
+    { id: 'claimant_id', label: "Claimant's SA ID / Passport",  hint: 'Your valid identity document or passport',            required: true  },
+    { id: 'deceased_id', label: "Deceased's SA ID / Passport",  hint: 'Identity document of the deceased',                  required: true  },
+    { id: 'policy_doc',  label: 'Policy / Membership Document', hint: 'Your policy certificate or membership card',          required: true  },
+    { id: 'bank_stmt',   label: 'Bank Statement (3 months)',     hint: 'Recent statement for the payout account',            required: true  },
+    { id: 'proof_rel',   label: 'Proof of Relationship',         hint: 'Marriage cert, birth cert, or affidavit',            required: false },
+  ];
+
+  let docFiles = {}; // { slotId: File }
+
+  function renderDocSlots() {
+    const grid = document.getElementById('docSlotsGrid');
+    if (!grid) return;
+    const reqSlots    = DOC_SLOTS.filter(s => s.required);
+    const uploadedReq = reqSlots.filter(s => docFiles[s.id]).length;
+    const uploadedAll = Object.keys(docFiles).length;
+
+    grid.innerHTML = DOC_SLOTS.map(slot => {
+      const file     = docFiles[slot.id];
+      const uploaded = !!file;
+      return `
+      <div class="doc-slot${uploaded ? ' uploaded' : ''}" id="dslot-${slot.id}"
+           ${!uploaded ? `onclick="triggerSlotUpload('${slot.id}')"` : ''}>
+        <input type="file" id="slotInput-${slot.id}" accept=".pdf,.jpg,.jpeg,.png"
+               style="display:none" onchange="onSlotFile('${slot.id}', this)">
+        <div class="doc-slot-header">
+          <div class="doc-slot-icon">
+            ${uploaded
+              ? `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+              : `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`
+            }
+          </div>
+          <div class="doc-slot-meta">
+            <div class="doc-slot-name">${esc(slot.label)}</div>
+            <div class="doc-slot-hint">${esc(slot.hint)}</div>
+          </div>
+          <span class="doc-slot-badge ${slot.required ? 'badge-req' : 'badge-opt'}">${slot.required ? 'Required' : 'Optional'}</span>
+        </div>
+        <div class="doc-slot-status ${uploaded ? 'filled' : 'empty'}">
+          ${uploaded
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+               <span class="doc-slot-filename">${esc(file.name)}</span>
+               <button type="button" class="doc-slot-remove" onclick="removeSlotFile('${slot.id}',event)" title="Remove">✕</button>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#90a4ae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+               <span>Click to upload</span>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+
+    const pct = reqSlots.length ? Math.round((uploadedReq / reqSlots.length) * 100) : 0;
+    document.getElementById('docProgressFill').style.width = pct + '%';
+    const optExtra = uploadedAll > uploadedReq ? ` (+${uploadedAll - uploadedReq} optional)` : '';
+    document.getElementById('docProgressText').textContent =
+      `${uploadedReq} of ${reqSlots.length} required documents uploaded${optExtra}`;
+  }
+
+  window.triggerSlotUpload = function(slotId) {
+    document.getElementById('slotInput-' + slotId).click();
+  };
+  window.onSlotFile = function(slotId, input) {
+    if (input.files.length) { docFiles[slotId] = input.files[0]; renderDocSlots(); }
+  };
+  window.removeSlotFile = function(slotId, event) {
+    event.stopPropagation();
+    delete docFiles[slotId];
+    const inp = document.getElementById('slotInput-' + slotId);
+    if (inp) inp.value = '';
+    renderDocSlots();
+  };
+
+  // Render slots immediately (DOM is ready at this point)
+  renderDocSlots();
+  let claimsUnsub = null;
+
+  // ── Auth guard ────────────────────────────────────────────
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+    currentUser = user;
+    document.getElementById('authGuard').style.display = 'none';
+    document.getElementById('shell').style.display     = 'flex';
+    await loadProfile();
+    subscribeToMyClaims();
+  });
+
+  // ── Load profile from Firestore ───────────────────────────
+  async function loadProfile() {
+    const snap = await db.collection('users').doc(currentUser.uid).get();
+    userProfile = snap.exists ? snap.data() : {};
+
+    const name  = userProfile.displayName || currentUser.displayName || currentUser.email;
+    const email = currentUser.email;
+    const init  = name[0].toUpperCase();
+
+    // Sidebar
+    document.getElementById('sidebarAvatar').textContent = init;
+    document.getElementById('sidebarName').textContent   = name;
+    document.getElementById('sidebarEmail').textContent  = email;
+    // Topbar
+    document.getElementById('topbarAvatar').textContent  = init;
+    // Welcome
+    document.getElementById('welcomeMsg').textContent    = `Welcome back, ${name.split(' ')[0]}!`;
+    // Profile section
+    document.getElementById('profileAvatarBig').textContent = init;
+    document.getElementById('profileFullName').textContent  = name;
+    document.getElementById('profileEmail').textContent     = email;
+    // Profile form pre-fill
+    document.getElementById('p-firstName').value  = userProfile.firstName  || '';
+    document.getElementById('p-lastName').value   = userProfile.lastName   || '';
+    document.getElementById('p-email').value      = email;
+    document.getElementById('p-phone').value      = userProfile.phone      || '';
+    document.getElementById('p-idNumber').value   = userProfile.idNumber   || '';
+    document.getElementById('p-dob').value        = userProfile.dob        || '';
+    document.getElementById('p-policy').value     = userProfile.policyNumber || '—';
+    // Show policy badge in profile header
+    const badge = document.getElementById('profilePolicyBadge');
+    badge.textContent = userProfile.policyNumber ? `Policy: ${userProfile.policyNumber}` : '';
+    // Pre-fill claim form name
+    document.getElementById('cf-name').value = userProfile.displayName || currentUser.displayName || '';
+  }
+
+  // ── Subscribe to my claims (realtime) ────────────────────
+  function subscribeToMyClaims() {
+    if (claimsUnsub) claimsUnsub();
+    claimsUnsub = db.collection('claims')
+      .where('userId', '==', currentUser.uid)
+      .orderBy('submittedAt', 'desc')
+      .onSnapshot(snap => {
+        myClaims = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderStats();
+        renderRecentClaims();
+        renderAllClaims();
+      }, err => {
+        console.warn('Claims error:', err.message);
+      });
+  }
+
+  function renderStats() {
+    document.getElementById('st-total').textContent    = myClaims.length;
+    document.getElementById('st-pending').textContent  = myClaims.filter(c => c.status === 'pending' || c.status === 'under_review').length;
+    document.getElementById('st-approved').textContent = myClaims.filter(c => c.status === 'approved').length;
+    document.getElementById('st-rejected').textContent = myClaims.filter(c => c.status === 'rejected').length;
+    const badge = document.getElementById('claimCountBadge');
+    if (myClaims.length > 0) { badge.style.display = 'inline'; badge.textContent = myClaims.length; }
+  }
+
+  function claimsTableHTML(claims, max) {
+    const rows = max ? claims.slice(0, max) : claims;
+    if (!rows.length) return `
+      <div class="empty-claims">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>You haven't submitted any claims yet.</p>
+        <button onclick="showSection('file-claim',document.querySelector('[data-sec=file-claim]'))" style="display:inline-block;padding:.7rem 1.8rem;background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;border-radius:10px;font-weight:700;border:none;cursor:pointer;">File Your First Claim</button>
+      </div>`;
+    return `<div style="overflow-x:auto;"><table class="claims-table">
+      <thead><tr><th>Reference</th><th>Policy #</th><th>Type</th><th>Submitted</th><th>Status</th><th>Admin Note</th></tr></thead>
+      <tbody>${rows.map(c => `<tr>
+        <td><code style="font-size:.8rem;">${c.id.slice(0,10).toUpperCase()}</code></td>
+        <td>${esc(c.policyNumber||'—')}</td>
+        <td>${formatType(c.claimType)}</td>
+        <td>${formatDate(c.submittedAt)}</td>
+        <td><span class="badge ${c.status||'pending'}">${formatStatus(c.status)}</span></td>
+        <td style="font-size:.82rem;color:#546e7a;max-width:220px;">${c.adminNote ? `<span title="${esc(c.adminNote)}" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(c.adminNote)}</span>` : '<span style="color:#ccc;">—</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function renderRecentClaims() {
+    document.getElementById('recentClaimsBody').innerHTML = claimsTableHTML(myClaims, 5);
+  }
+
+  function renderAllClaims() {
+    document.getElementById('allClaimsBody').innerHTML = claimsTableHTML(myClaims, null);
+  }
+
+  // (file upload handled by per-slot functions above)
+
+  // ── Claim form submit ─────────────────────────────────────
+  document.getElementById('claimForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const policy  = document.getElementById('cf-policy').value.trim();
+    const type    = document.getElementById('cf-type').value;
+    const name    = document.getElementById('cf-name').value.trim();
+    const idNum   = document.getElementById('cf-id').value.trim();
+    const deceased= document.getElementById('cf-deceased').value.trim();
+    const dod     = document.getElementById('cf-dod').value;
+    const rel     = document.getElementById('cf-rel').value;
+    const phone   = document.getElementById('cf-phone').value.trim();
+    const bank    = document.getElementById('cf-bank').value.trim();
+    const notes   = document.getElementById('cf-notes').value.trim();
+    const msgEl   = document.getElementById('claimMsg');
+    const btn     = document.getElementById('claimSubmitBtn');
+    msgEl.style.display = 'none';
+
+    if (!policy||!type||!name||!idNum||!deceased||!dod||!rel||!phone||!bank) {
+      msgEl.textContent = 'Please fill in all required fields.';
+      msgEl.className   = 'form-msg error'; msgEl.style.display = 'block'; return;
+    }
+    const missingRequired = DOC_SLOTS.filter(s => s.required && !docFiles[s.id]).map(s => s.label);
+    if (missingRequired.length) {
+      msgEl.textContent = `Please upload: ${missingRequired.join(', ')}.`;
+      msgEl.className   = 'form-msg error'; msgEl.style.display = 'block'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    try {
+      const ref = await db.collection('claims').add({
+        userId: currentUser.uid, claimantEmail: currentUser.email,
+        claimantName: name, claimantId: idNum, policyNumber: policy,
+        claimType: type, deceasedName: deceased, dateOfDeath: dod,
+        relationship: rel, phone, bankAccount: bank, notes,
+        documentNames: DOC_SLOTS.filter(s => docFiles[s.id]).map(s => `${s.label}: ${docFiles[s.id].name}`),
+        documentSlots: DOC_SLOTS.reduce((acc, s) => { if (docFiles[s.id]) acc[s.id] = docFiles[s.id].name; return acc; }, {}),
+        status: 'pending',
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await db.collection('activityLogs').add({
+        type: 'claim_submitted', userId: currentUser.uid,
+        userEmail: currentUser.email, userName: name,
+        description: `Claim submitted for policy ${policy}`,
+        claimId: ref.id, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      document.getElementById('claimRefDisplay').textContent = `Reference: ${ref.id.slice(0,12).toUpperCase()}`;
+      document.getElementById('claimForm').style.display     = 'none';
+      document.getElementById('claimSuccess').style.display  = 'block';
+      docFiles = {}; renderDocSlots();
+    } catch (err) {
+      msgEl.textContent = 'Submission failed: ' + err.message;
+      msgEl.className   = 'form-msg error'; msgEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Submit Claim';
+    }
+  });
+
+  window.resetClaimForm = function() {
+    document.getElementById('claimForm').reset();
+    document.getElementById('claimForm').style.display    = 'block';
+    document.getElementById('claimSuccess').style.display = 'none';
+    document.getElementById('claimSubmitBtn').disabled    = false;
+    document.getElementById('claimSubmitBtn').textContent = 'Submit Claim';
+    docFiles = {}; renderDocSlots();
+  };
+
+  // ── Profile save ──────────────────────────────────────────
+  document.getElementById('profileForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn   = document.getElementById('profileSaveBtn');
+    const msgEl = document.getElementById('profileMsg');
+    msgEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const firstName = document.getElementById('p-firstName').value.trim();
+    const lastName  = document.getElementById('p-lastName').value.trim();
+    const displayName = `${firstName} ${lastName}`.trim();
+    try {
+      await db.collection('users').doc(currentUser.uid).set({
+        firstName, lastName, displayName,
+        phone:    document.getElementById('p-phone').value.trim(),
+        idNumber: document.getElementById('p-idNumber').value.trim(),
+        dob:      document.getElementById('p-dob').value,
+        email:    currentUser.email,
+      }, { merge: true });
+      if (displayName) await currentUser.updateProfile({ displayName });
+      msgEl.textContent  = '✔ Profile updated successfully.';
+      msgEl.className    = 'form-msg success'; msgEl.style.display = 'block';
+      await loadProfile();
+    } catch (err) {
+      msgEl.textContent = 'Save failed: ' + err.message;
+      msgEl.className   = 'form-msg error'; msgEl.style.display = 'block';
+    }
+    btn.disabled = false; btn.textContent = 'Save Changes';
+  });
+
+  // ── Change password ───────────────────────────────────────
+  window.changePassword = async function() {
+    const np    = document.getElementById('p-newPw').value;
+    const cp    = document.getElementById('p-confirmPw').value;
+    const msgEl = document.getElementById('pwMsg');
+    msgEl.style.display = 'none';
+    if (!np || np.length < 6) { msgEl.textContent = 'Password must be at least 6 characters.'; msgEl.className = 'form-msg error'; msgEl.style.display = 'block'; return; }
+    if (np !== cp)             { msgEl.textContent = 'Passwords do not match.';                  msgEl.className = 'form-msg error'; msgEl.style.display = 'block'; return; }
+    try {
+      await currentUser.updatePassword(np);
+      document.getElementById('p-newPw').value = '';
+      document.getElementById('p-confirmPw').value = '';
+      msgEl.textContent = '✔ Password updated successfully.';
+      msgEl.className   = 'form-msg success'; msgEl.style.display = 'block';
+    } catch (err) {
+      if (err.code === 'auth/requires-recent-login') {
+        msgEl.textContent = 'For security, please log out and log back in before changing your password.';
+      } else { msgEl.textContent = err.message; }
+      msgEl.className = 'form-msg error'; msgEl.style.display = 'block';
+    }
+  };
+
+  // ── Send reset email ──────────────────────────────────────
+  window.sendReset = async function() {
+    const msgEl = document.getElementById('resetMsg');
+    msgEl.style.display = 'none';
+    try {
+      await auth.sendPasswordResetEmail(currentUser.email);
+      msgEl.textContent = `✔ Reset email sent to ${currentUser.email}`;
+      msgEl.className   = 'form-msg success'; msgEl.style.display = 'block';
+    } catch (err) {
+      msgEl.textContent = err.message;
+      msgEl.className   = 'form-msg error'; msgEl.style.display = 'block';
+    }
+  };
+
+  // ── Logout ────────────────────────────────────────────────
+  window.doLogout = async function() {
+    if (claimsUnsub) claimsUnsub();
+    await auth.signOut();
+    window.location.href = 'login.html';
+  };
+
+  // ── Section navigation ────────────────────────────────────
+  const titles = { overview:'Overview', 'my-claims':'My Claims', 'file-claim':'File a Claim', profile:'My Profile' };
+  window.showSection = function(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    if (btn) btn.classList.add('active');
+    document.getElementById('pageTitle').textContent = titles[name] || name;
+    document.getElementById('sidebar').classList.remove('open');
+  };
+
+  // ── Helpers ───────────────────────────────────────────────
+  function formatDate(val) {
+    if (!val) return '—';
+    let d;
+    if (typeof val?.toDate === 'function') d = val.toDate();
+    else if (val?.seconds) d = new Date(val.seconds * 1000);
+    else d = new Date(val);
+    return isNaN(d) ? '—' : d.toLocaleDateString('en-ZA', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  function formatStatus(s) {
+    return { pending:'Pending', under_review:'Under Review', approved:'Approved', rejected:'Rejected' }[s] || (s||'Pending');
+  }
+  function formatType(t) {
+    return { death_benefit:'Death Benefit', funeral_cover:'Funeral Cover', accidental_death:'Accidental Death', repatriation:'Repatriation', other:'Other' }[t] || (t||'—');
+  }
+  function esc(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Copy policy number ─────────────────────────────────────
+  window.copyPolicy = function() {
+    const val = document.getElementById('p-policy').value;
+    if (!val || val === '—') return;
+    navigator.clipboard.writeText(val).then(() => {
+      const btn = document.querySelector('[onclick="copyPolicy()"]');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+    }).catch(() => {
+      // Fallback for older browsers
+      const el = document.createElement('textarea');
+      el.value = val;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    });
+  };
+  let editClaimId   = null; // ID of the claim being edited
+  let editDocFiles  = {};   // new files chosen in edit mode { slotId: File }
+
+  window.openEditDrawer = function(claimId) {
+    const claim = myClaims.find(c => c.id === claimId);
+    if (!claim) return;
+    editClaimId  = claimId;
+    editDocFiles = {};
+
+    // Header meta
+    document.getElementById('editDrawerMeta').textContent =
+      `Ref: ${claimId.slice(0,10).toUpperCase()} · Status: ${formatStatus(claim.status)}`;
+
+    const locked = claim.status === 'approved';
+
+    // Build inner HTML
+    document.getElementById('editDrawerBody').innerHTML = `
+      ${locked ? `
+        <div style="display:flex;align-items:center;gap:.75rem;background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;padding:.85rem 1rem;margin-bottom:1.2rem;font-size:.87rem;color:#e65100;font-weight:600;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          This claim has been approved and can no longer be edited.
+        </div>` : ''}
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;" class="edit-grid">
+        <div class="field">
+          <label>Policy Number *</label>
+          <input type="text" id="e-policy" value="${esc(claim.policyNumber||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field">
+          <label>Claim Type *</label>
+          <select id="e-type" ${locked?'disabled':''}>
+            <option value="">\u2014 Select \u2014</option>
+            <option value="death_benefit"    ${claim.claimType==='death_benefit'   ?'selected':''}>Death Benefit</option>
+            <option value="funeral_cover"    ${claim.claimType==='funeral_cover'   ?'selected':''}>Funeral Cover</option>
+            <option value="accidental_death" ${claim.claimType==='accidental_death'?'selected':''}>Accidental Death</option>
+            <option value="repatriation"     ${claim.claimType==='repatriation'    ?'selected':''}>Repatriation</option>
+            <option value="other"            ${claim.claimType==='other'           ?'selected':''}>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Your Full Name *</label>
+          <input type="text" id="e-name" value="${esc(claim.claimantName||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field">
+          <label>Your SA ID Number *</label>
+          <input type="text" id="e-id" value="${esc(claim.claimantId||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field">
+          <label>Deceased Full Name *</label>
+          <input type="text" id="e-deceased" value="${esc(claim.deceasedName||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field">
+          <label>Date of Death *</label>
+          <input type="date" id="e-dod" value="${esc(claim.dateOfDeath||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field">
+          <label>Relationship to Deceased *</label>
+          <select id="e-rel" ${locked?'disabled':''}>
+            <option value="">\u2014 Select \u2014</option>
+            <option value="spouse"      ${claim.relationship==='spouse'     ?'selected':''}>Spouse / Partner</option>
+            <option value="child"       ${claim.relationship==='child'      ?'selected':''}>Child</option>
+            <option value="parent"      ${claim.relationship==='parent'     ?'selected':''}>Parent</option>
+            <option value="sibling"     ${claim.relationship==='sibling'    ?'selected':''}>Sibling</option>
+            <option value="beneficiary" ${claim.relationship==='beneficiary'?'selected':''}>Named Beneficiary</option>
+            <option value="other"       ${claim.relationship==='other'      ?'selected':''}>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Contact Phone *</label>
+          <input type="tel" id="e-phone" value="${esc(claim.phone||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>Bank Account for Payout *</label>
+          <input type="text" id="e-bank" value="${esc(claim.bankAccount||'')}" ${locked?'disabled':''}>
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>Additional Notes</label>
+          <textarea id="e-notes" rows="3" style="border:1.5px solid var(--border);border-radius:10px;padding:.7rem .95rem;font-size:.93rem;outline:none;background:var(--blue-bg);font-family:inherit;resize:vertical;width:100%;" ${locked?'disabled':''}>${esc(claim.notes||'')}</textarea>
+        </div>
+      </div>
+
+      <!-- Documents section -->
+      <div style="margin-top:1.3rem;">
+        <div style="font-size:.83rem;font-weight:700;color:#1a2744;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;">
+          Documents
+          <span style="font-size:.72rem;color:#546e7a;font-weight:400;">(replace a document by clicking its slot)</span>
+        </div>
+        <div id="editDocSlotsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;"></div>
+        <div style="margin-top:.75rem;display:flex;align-items:center;gap:.8rem;font-size:.81rem;color:#546e7a;">
+          <span id="editDocProgressText"></span>
+          <div style="flex:1;height:7px;background:#e0e0e0;border-radius:4px;overflow:hidden;">
+            <div id="editDocProgressFill" style="height:100%;background:linear-gradient(90deg,#1976d2,#43a047);border-radius:4px;transition:width .35s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-msg" id="editClaimMsg" style="margin-top:1rem;"></div>
+    `;
+
+    // Apply field styles
+    document.querySelectorAll('#editDrawerBody .field input, #editDrawerBody .field select, #editDrawerBody .field textarea')
+      .forEach(el => {
+        el.style.cssText += ';border:1.5px solid #dce8f5;border-radius:10px;padding:.7rem .95rem;font-size:.93rem;outline:none;background:#f0f7ff;color:#1a2744;width:100%;';
+      });
+
+    // Show/hide save button
+    document.getElementById('editSaveBtn').style.display = locked ? 'none' : '';
+
+    // Render doc slots
+    renderEditDocSlots(claim);
+
+    // Open
+    document.getElementById('editDrawerOverlay').style.display = 'block';
+    requestAnimationFrame(() => {
+      document.getElementById('editDrawer').style.transform = 'translateX(0)';
+    });
+  };
+
+  function renderEditDocSlots(claim) {
+    const existingSlots = claim.documentSlots || {}; // { slotId: filename } — already saved
+    const grid = document.getElementById('editDocSlotsGrid');
+    if (!grid) return;
+
+    const reqSlots    = DOC_SLOTS.filter(s => s.required);
+    // A slot is "satisfied" if there is a new file queued OR an existing saved filename
+    const satisfied   = s => !!(editDocFiles[s.id] || existingSlots[s.id]);
+    const uploadedReq = reqSlots.filter(satisfied).length;
+    const uploadedAll = DOC_SLOTS.filter(satisfied).length;
+
+    grid.innerHTML = DOC_SLOTS.map(slot => {
+      const newFile    = editDocFiles[slot.id];
+      const savedName  = existingSlots[slot.id];
+      const hasFile    = !!(newFile || savedName);
+      const displayName = newFile ? newFile.name : savedName;
+      const isNew       = !!newFile;
+
+      const svgDoc   = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`;
+      const svgCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+      return `
+      <div style="border:2px ${hasFile ? 'solid #43a047' : 'dashed #90caf9'};border-radius:11px;padding:.8rem .95rem;background:${hasFile ? '#f1f8e9' : '#f0f7ff'};cursor:${claim.status==='approved'?'not-allowed':'pointer'};transition:border-color .2s;" ${claim.status!=='approved' ? `onclick="triggerEditSlot('${slot.id}')"` : ''} title="${hasFile ? 'Click to replace' : 'Click to upload'}">
+        <input type="file" id="editSlot-${slot.id}" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="onEditSlotFile('${slot.id}',this)">
+        <div style="display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.55rem;">
+          <div style="width:32px;height:32px;border-radius:8px;background:${hasFile?'#c8e6c9':'#e3f2fd'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">${hasFile ? svgCheck : svgDoc}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.84rem;font-weight:700;color:#1a2744;line-height:1.25;">${slot.label}</div>
+            <div style="font-size:.71rem;color:#546e7a;">${slot.hint}</div>
+          </div>
+          <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;padding:.1rem .38rem;border-radius:4px;${slot.required ? 'background:#fce4ec;color:#c62828;' : 'background:#e8f5e9;color:#2e7d32;'}">${slot.required?'Required':'Optional'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;${hasFile ? 'color:#2e7d32;font-weight:700;' : 'color:#90a4ae;'}">
+          ${hasFile
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+               <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(displayName)}">${esc(displayName)}</span>
+               ${isNew ? '<span style="background:#e3f2fd;color:#1565c0;border-radius:10px;padding:.1rem .4rem;font-size:.68rem;font-weight:800;">NEW</span>' : ''}
+               ${claim.status!=='approved' ? `<button type="button" onclick="removeEditSlot('${slot.id}',event)" style="background:none;border:none;cursor:pointer;color:#e53935;font-size:.88rem;padding:0 0 0 .3rem;flex-shrink:0;">✕</button>` : ''}`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#90a4ae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+               <span>Click to upload</span>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+
+    const pct = reqSlots.length ? Math.round((uploadedReq / reqSlots.length) * 100) : 0;
+    document.getElementById('editDocProgressFill').style.width = pct + '%';
+    const optExtra = uploadedAll > uploadedReq ? ` (+${uploadedAll - uploadedReq} optional)` : '';
+    document.getElementById('editDocProgressText').textContent =
+      `${uploadedReq} of ${reqSlots.length} required documents uploaded${optExtra}`;
+  }
+
+  window.triggerEditSlot = function(slotId) {
+    document.getElementById('editSlot-' + slotId)?.click();
+  };
+  window.onEditSlotFile = function(slotId, inp) {
+    if (!inp.files.length) return;
+    editDocFiles[slotId] = inp.files[0];
+    const claim = myClaims.find(c => c.id === editClaimId);
+    if (claim) renderEditDocSlots(claim);
+  };
+  window.removeEditSlot = function(slotId, ev) {
+    ev.stopPropagation();
+    delete editDocFiles[slotId];
+    const inp = document.getElementById('editSlot-' + slotId);
+    if (inp) inp.value = '';
+    // Also remove from existingSlots in the in-memory claim so the UI reflects it
+    const claim = myClaims.find(c => c.id === editClaimId);
+    if (claim && claim.documentSlots) delete claim.documentSlots[slotId];
+    if (claim) renderEditDocSlots(claim);
+  };
+
+  window.closeEditDrawer = function() {
+    document.getElementById('editDrawer').style.transform = 'translateX(100%)';
+    document.getElementById('editDrawerOverlay').style.display = 'none';
+    editClaimId  = null;
+    editDocFiles = {};
+  };
+
+  window.saveEditedClaim = async function() {
+    if (!editClaimId) return;
+    const claim   = myClaims.find(c => c.id === editClaimId);
+    const msgEl   = document.getElementById('editClaimMsg');
+    const btn     = document.getElementById('editSaveBtn');
+    msgEl.style.display = 'none';
+
+    const policy   = document.getElementById('e-policy').value.trim();
+    const type     = document.getElementById('e-type').value;
+    const name     = document.getElementById('e-name').value.trim();
+    const idNum    = document.getElementById('e-id').value.trim();
+    const deceased = document.getElementById('e-deceased').value.trim();
+    const dod      = document.getElementById('e-dod').value;
+    const rel      = document.getElementById('e-rel').value;
+    const phone    = document.getElementById('e-phone').value.trim();
+    const bank     = document.getElementById('e-bank').value.trim();
+    const notes    = document.getElementById('e-notes').value.trim();
+
+    if (!policy||!type||!name||!idNum||!deceased||!dod||!rel||!phone||!bank) {
+      msgEl.textContent = 'Please fill in all required fields.'; msgEl.className = 'form-msg error'; msgEl.style.display = 'block'; return;
+    }
+
+    // Merge existing saved slots with newly selected files
+    const mergedSlots = { ...(claim.documentSlots || {}) };
+    DOC_SLOTS.forEach(s => { if (editDocFiles[s.id]) mergedSlots[s.id] = editDocFiles[s.id].name; });
+
+    // Check required slots
+    const missingReq = DOC_SLOTS.filter(s => s.required && !mergedSlots[s.id]).map(s => s.label);
+    if (missingReq.length) {
+      msgEl.textContent = `Please upload: ${missingReq.join(', ')}.`; msgEl.className = 'form-msg error'; msgEl.style.display = 'block'; return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const docNames  = DOC_SLOTS.filter(s => mergedSlots[s.id]).map(s => `${s.label}: ${mergedSlots[s.id]}`);
+      await db.collection('claims').doc(editClaimId).update({
+        policyNumber:  policy,
+        claimType:     type,
+        claimantName:  name,
+        claimantId:    idNum,
+        deceasedName:  deceased,
+        dateOfDeath:   dod,
+        relationship:  rel,
+        phone,
+        bankAccount:   bank,
+        notes,
+        documentNames: docNames,
+        documentSlots: mergedSlots,
+        updatedAt:     firebase.firestore.FieldValue.serverTimestamp(),
+        // Reset to pending if it was rejected so admin re-reviews
+        status:        claim.status === 'rejected' ? 'pending' : claim.status,
+      });
+      await db.collection('activityLogs').add({
+        type:        'claim_updated',
+        userId:      currentUser.uid,
+        userEmail:   currentUser.email,
+        userName:    name,
+        description: `Claim ${editClaimId.slice(0,8)} updated by claimant`,
+        claimId:     editClaimId,
+        timestamp:   firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Show brief success message then close
+      msgEl.textContent = '\u2714 Claim updated successfully!'; msgEl.className = 'form-msg success'; msgEl.style.display = 'block';
+      setTimeout(() => closeEditDrawer(), 1200);
+    } catch (err) {
+      msgEl.textContent = 'Save failed: ' + err.message; msgEl.className = 'form-msg error'; msgEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Save Changes';
+    }
+  };
+
+</script>
+</body>
+</html>

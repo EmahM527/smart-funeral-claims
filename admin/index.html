@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal | Smart Funeral Claims</title>
+  <link rel="stylesheet" href="admin.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ── Login Screen ── -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <img src="../public/logo.png" alt="Logo" class="login-logo">
+      <h1>Admin Portal</h1>
+      <p class="login-sub">Smart Funeral Claims — Authorised Access Only</p>
+      <div id="loginError" class="login-error" style="display:none;"></div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="adminEmail" placeholder="admin@smartfuneralclaims.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="adminPassword" placeholder="••••••••" autocomplete="current-password">
+          <button class="pw-toggle" onclick="togglePw()" type="button" tabindex="-1">
+            <svg id="pwEyeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="adminLogin()">Sign In</button>
+    </div>
+  </div>
+
+  <!-- ── App Shell (hidden until logged in) ── -->
+  <div id="appShell" class="app-shell" style="display:none;">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <img src="../public/logo.png" alt="Logo">
+        <span>SFC Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="dashboard" onclick="showSection('dashboard',this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a href="#" class="nav-item" data-section="users" onclick="showSection('users',this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+          <span class="badge" id="usersBadge">0</span>
+        </a>
+        <a href="#" class="nav-item" data-section="claims" onclick="showSection('claims',this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Claims
+          <span class="badge badge-warn" id="claimsBadge">0</span>
+        </a>
+        <a href="#" class="nav-item" data-section="reports" onclick="showSection('reports',this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Reports
+        </a>
+        <a href="#" class="nav-item" data-section="activity" onclick="showSection('activity',this)">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Activity Log
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-pill">
+          <div class="admin-avatar" id="adminAvatar">A</div>
+          <div class="admin-info">
+            <span id="adminName">Admin</span>
+            <small id="adminEmailDisplay">—</small>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+
+      <!-- ── Top bar ── -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="live-dot"></div>
+          <span class="live-label">Live</span>
+          <span class="last-updated" id="lastUpdated">—</span>
+          <button class="refresh-btn" onclick="refreshAll()" title="Refresh data">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.35"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ DASHBOARD SECTION ══ -->
+      <section id="sec-dashboard" class="section active">
+
+        <!-- Stat cards -->
+        <div class="stat-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="ds-totalUsers">—</div>
+              <div class="stat-label">Total Users</div>
+              <div class="stat-sub" id="ds-newUsersMonth">+0 this month</div>
+            </div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="ds-totalClaims">—</div>
+              <div class="stat-label">Total Claims</div>
+              <div class="stat-sub" id="ds-claimsMonth">+0 this month</div>
+            </div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="ds-pendingClaims">—</div>
+              <div class="stat-label">Pending Claims</div>
+              <div class="stat-sub">Awaiting review</div>
+            </div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value" id="ds-approvedClaims">—</div>
+              <div class="stat-label">Approved Claims</div>
+              <div class="stat-sub" id="ds-approvalRate">0% approval rate</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Claims by Status</h3>
+            </div>
+            <div class="chart-body">
+              <canvas id="claimsStatusChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card" style="flex:2;">
+            <div class="chart-header">
+              <h3>Claims Submitted (Last 6 Months)</h3>
+            </div>
+            <div class="chart-body">
+              <canvas id="claimsTimelineChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent tables row -->
+        <div class="tables-row">
+          <div class="table-card">
+            <div class="table-card-header">
+              <h3>Recent Claims</h3>
+              <button class="view-all-btn" onclick="showSection('claims', document.querySelector('[data-section=claims]'))">View All</button>
+            </div>
+            <table class="data-table" id="recentClaimsTable">
+              <thead><tr><th>Claimant</th><th>Policy #</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="recentClaimsTbody"><tr><td colspan="4" class="loading-cell">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="table-card">
+            <div class="table-card-header">
+              <h3>Recent Logins</h3>
+              <button class="view-all-btn" onclick="showSection('activity', document.querySelector('[data-section=activity]'))">View All</button>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>User</th><th>Time</th><th>Status</th></tr></thead>
+              <tbody id="recentLoginsTbody"><tr><td colspan="3" class="loading-cell">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ USERS SECTION ══ -->
+      <section id="sec-users" class="section">
+        <div class="section-topbar">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="userSearch" placeholder="Search by name or email…" oninput="filterUsers()">
+          </div>
+          <div class="filter-wrap">
+            <select id="userStatusFilter" onchange="filterUsers()">
+              <option value="">All Users</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mini-stats">
+          <div class="mini-stat"><span id="us-total">0</span> Total</div>
+          <div class="mini-stat green"><span id="us-active">0</span> Active</div>
+          <div class="mini-stat orange"><span id="us-new">0</span> New This Month</div>
+        </div>
+
+        <div class="table-card">
+          <!-- Fallback banner shown when Firestore rules block direct users read -->
+          <div id="usersFallbackBanner" style="display:none;align-items:center;gap:.8rem;background:#fff8e1;border-bottom:1px solid #ffe082;padding:.75rem 1.2rem;font-size:.85rem;color:#e65100;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span><strong>Limited view:</strong> User profiles are derived from activity logs. Update your <strong>Firestore Security Rules</strong> to allow admin full access to the <code>users</code> collection for complete profile data.</span>
+          </div>
+          <table class="data-table full-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>User / Policy #</th>
+                <th>Email</th>
+                <th>Registered</th>
+                <th>Last Login</th>
+                <th>Claims</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody">
+              <tr><td colspan="7" class="loading-cell">Loading users…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ CLAIMS SECTION ══ -->
+      <section id="sec-claims" class="section">
+        <div class="section-topbar">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="claimSearch" placeholder="Search claims…" oninput="filterClaims()">
+          </div>
+          <div class="filter-wrap">
+            <select id="claimStatusFilter" onchange="filterClaims()">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="under_review">Under Review</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="setClaimTab('all',this)">All</button>
+          <button class="tab-btn" onclick="setClaimTab('pending',this)">Pending</button>
+          <button class="tab-btn" onclick="setClaimTab('under_review',this)">Under Review</button>
+          <button class="tab-btn" onclick="setClaimTab('approved',this)">Approved</button>
+          <button class="tab-btn" onclick="setClaimTab('rejected',this)">Rejected</button>
+        </div>
+        <div class="table-card">
+          <table class="data-table full-table">
+            <thead>
+              <tr>
+                <th>Claim ID</th>
+                <th>Claimant</th>
+                <th>Policy #</th>
+                <th>Type</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="claimsTbody">
+              <tr><td colspan="7" class="loading-cell">Loading claims…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══ REPORTS SECTION ══ -->
+      <section id="sec-reports" class="section">
+        <div class="reports-grid">
+          <div class="report-card">
+            <div class="report-icon blue">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <h3>Users Report</h3>
+            <p>Full list of all registered users including registration date, last login, and status.</p>
+            <div class="report-meta" id="report-users-meta">0 users</div>
+            <button class="dl-btn" onclick="downloadReport('users')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download CSV
+            </button>
+          </div>
+          <div class="report-card">
+            <div class="report-icon green">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h3>Claims Report</h3>
+            <p>All submitted claims with status, policy number, claim type, and submission date.</p>
+            <div class="report-meta" id="report-claims-meta">0 claims</div>
+            <button class="dl-btn" onclick="downloadReport('claims')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download CSV
+            </button>
+          </div>
+          <div class="report-card">
+            <div class="report-icon orange">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h3>Activity Report</h3>
+            <p>Complete audit log of all user logins, claim submissions, and admin actions.</p>
+            <div class="report-meta" id="report-activity-meta">0 events</div>
+            <button class="dl-btn" onclick="downloadReport('activity')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download CSV
+            </button>
+          </div>
+          <div class="report-card">
+            <div class="report-icon purple">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <h3>Monthly Summary</h3>
+            <p>Month-by-month breakdown of new users, claims submitted, approved, and rejected.</p>
+            <div class="report-meta" id="report-summary-meta">Last 6 months</div>
+            <button class="dl-btn" onclick="downloadReport('summary')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Charts in reports -->
+        <div class="charts-row" style="margin-top:1.5rem;">
+          <div class="chart-card" style="flex:1;">
+            <div class="chart-header"><h3>Users Registered Per Month</h3></div>
+            <div class="chart-body"><canvas id="usersMonthChart"></canvas></div>
+          </div>
+          <div class="chart-card" style="flex:1;">
+            <div class="chart-header"><h3>Claim Outcomes</h3></div>
+            <div class="chart-body"><canvas id="claimOutcomeChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ ACTIVITY SECTION ══ -->
+      <section id="sec-activity" class="section">
+        <div class="section-topbar">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="activitySearch" placeholder="Search activity…" oninput="filterActivity()">
+          </div>
+          <div class="filter-wrap">
+            <select id="activityTypeFilter" onchange="filterActivity()">
+              <option value="">All Events</option>
+              <option value="login">Logins</option>
+              <option value="claim_submitted">Claims Submitted</option>
+              <option value="claim_approved">Claims Approved</option>
+              <option value="claim_rejected">Claims Rejected</option>
+              <option value="register">Registrations</option>
+            </select>
+          </div>
+        </div>
+        <div class="activity-timeline" id="activityTimeline">
+          <div class="loading-cell">Loading activity…</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ── Modal ── -->
+  <div id="modal" class="modal-overlay" style="display:none;" onclick="closeModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script src="admin.js"></script>
+</body>
+</html>

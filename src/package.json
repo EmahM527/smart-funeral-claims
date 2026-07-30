@@ -1,0 +1,16 @@
+{
+  "name": "smart-funeral-claims-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "firebase-admin": "^13.9.0",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.7"
+  }
+}

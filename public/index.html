@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Funeral Claims Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo-section">
+      <img src="logo.png" alt="Company Logo" class="logo">
+      <span class="company-name">Smart Funeral Claims</span>
+    </div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="claims.html">Claims</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero" id="home">
+    <div class="hero-bg">
+      <div class="hero-content">
+        <h1>Welcome to Smart Funeral Claims</h1>
+        <p class="hero-sub">Seamless, secure, and transparent funeral insurance claims for everyone.</p>
+        <a href="#about" class="scroll-down">&#8595; Scroll Down</a>
+      </div>
+    </div>
+  </header>
+  <section class="mission-vision">
+    <div class="mv-content">
+      <img src="welcome.jpg" alt="Welcome" class="mv-img">
+      <div>
+        <h2>Our Mission & Vision</h2>
+        <p>To provide a seamless, transparent, and efficient funeral claims process for all policyholders and beneficiaries. We strive to eliminate delays, paperwork, and uncertainty during difficult times.</p>
+      </div>
+    </div>
+  </section>
+  <section class="about" id="about">
+    <h2>What We Do</h2>
+    <div class="about-flex">
+      <div class="about-card">
+        <span class="about-icon"><img src="icons/claim.svg" alt="Claim Submission" width="48" height="48"></span>
+        <h3>Digital Claim Submission</h3>
+        <p>Submit your funeral insurance claims online with a simple, guided process—no paperwork, no hassle.</p>
+      </div>
+      <div class="about-card">
+        <span class="about-icon"><img src="icons/secure.svg" alt="Secure Uploads" width="48" height="48"></span>
+        <h3>Secure Document Uploads</h3>
+        <p>Upload all required documents safely and securely. Your information is encrypted and protected.</p>
+      </div>
+      <div class="about-card">
+        <span class="about-icon"><img src="icons/tracking.svg" alt="Real-Time Tracking" width="48" height="48"></span>
+        <h3>Real-Time Tracking</h3>
+        <p>Track your claim status at every stage and receive instant notifications about updates or decisions.</p>
+      </div>
+      <div class="about-card">
+        <span class="about-icon"><img src="icons/admin.svg" alt="Admin Dashboard" width="48" height="48"></span>
+        <h3>Admin Dashboard</h3>
+        <p>Insurance staff can review, verify, and process claims efficiently through a centralized dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="reach" id="reach">
+    <h2>Our Reach</h2>
+    <div class="reach-map-container">
+      <div id="sa-map" class="reach-map"></div>
+      <div class="reach-legend">
+        <strong>Hotspots:</strong> WC - Western Cape, NC - Northern Cape, GP - Gauteng, MP - Mpumalanga, KZN - KwaZulu-Natal, EC - Eastern Cape, FS - Free State
+      </div>
+    </div>
+  </section>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var map = L.map('sa-map').setView([-29.0, 24.0], 5.5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      // Province hotspots (approximate coordinates)
+      var provinces = [
+        { name: 'WC', coords: [-33.918861, 18.4233] }, // Western Cape
+        { name: 'NC', coords: [-28.7384, 24.7623] },   // Northern Cape
+        { name: 'GP', coords: [-26.2041, 28.0473] },   // Gauteng
+        { name: 'MP', coords: [-25.5657, 30.5273] },   // Mpumalanga
+        { name: 'KZN', coords: [-29.8587, 31.0218] },  // KwaZulu-Natal
+        { name: 'EC', coords: [-32.2968, 26.4194] },   // Eastern Cape
+        { name: 'FS', coords: [-28.4541, 26.7968] }    // Free State
+      ];
+      provinces.forEach(function(prov) {
+        L.circleMarker(prov.coords, {
+          radius: 12,
+          color: '#1976d2',
+          fillColor: '#1976d2',
+          fillOpacity: 0.8
+        }).addTo(map).bindTooltip(prov.name, {permanent:true, direction:'top', className:'map-label'});
+      });
+    });
+  </script>
+  <section class="easy-claims" id="easy-claims">
+    <h2>Easy Way to Claim</h2>
+    <div class="diagram-container circular-diagram compact-diagram easy-claim-bg">
+      </style>
+      <style>
+        .easy-claim-bg {
+          background: url('claim-bg.jpeg') center/cover no-repeat;
+          position: relative;
+          z-index: 1;
+        }
+        .easy-claim-bg > * {
+          position: relative;
+          z-index: 2;
+        }
+        .easy-claim-bg::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(255,255,255,0.5);
+          z-index: 1;
+          border-radius: 24px;
+        }
+      </style>
+      <div class="mermaid">
+        flowchart LR
+          A((Sign Up / Login)):::step1 --> B((Start New Claim)):::step2 --> C((Fill in Claim Details)):::step3 --> D((Upload Documents)):::step4 --> E((Submit Claim)):::step5 --> F((Claim Review)):::step6 --> G((Track Status)):::step7 --> H((Payout / Feedback)):::step8
+          H -.-> A
+        classDef step1 fill:#1976d2,color:#fff,stroke:#1565c0,stroke-width:3px;
+        classDef step2 fill:#42a5f5,color:#fff,stroke:#1976d2,stroke-width:3px;
+        classDef step3 fill:#90caf9,color:#222,stroke:#1976d2,stroke-width:3px;
+        classDef step4 fill:#e3f2fd,color:#1976d2,stroke:#1976d2,stroke-width:3px;
+        classDef step5 fill:#fff,color:#1976d2,stroke:#1976d2,stroke-width:3px;
+        classDef step6 fill:#bbdefb,color:#1976d2,stroke:#1976d2,stroke-width:3px;
+        classDef step7 fill:#64b5f6,color:#fff,stroke:#1976d2,stroke-width:3px;
+        classDef step8 fill:#1976d2,color:#fff,stroke:#1565c0,stroke-width:3px;
+      </div>
+      <ul class="steps-list">
+        <li><strong>1.</strong> Sign up or log in to your account.</li>
+        <li><strong>2.</strong> Start a new claim from your dashboard.</li>
+        <li><strong>3.</strong> Fill in all required claim details.</li>
+        <li><strong>4.</strong> Upload necessary documents securely.</li>
+        <li><strong>5.</strong> Submit your claim for review.</li>
+        <li><strong>6.</strong> Track your claim status in real time.</li>
+        <li><strong>7.</strong> Receive payout or feedback from our team.</li>
+      </ul>
+    </div>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme: 'base', themeVariables: { primaryColor: '#1976d2', edgeLabelBackground:'#fff', nodeTextColor:'#222', fontFamily:'Segoe UI, Arial, sans-serif', fontSize:'18px', secondaryColor:'#e3f2fd', tertiaryColor:'#bbdefb', lineColor:'#1976d2', borderRadius:'12px', clusterBkg:'#e3f2fd', clusterBorder:'#1976d2'}});
+    </script>
+  </style>
+  <style>
+    .compact-diagram .mermaid svg {
+      max-width: 900px !important;
+      width: 100% !important;
+      font-size: 18px !important;
+      margin: 0 auto;
+      display: block;
+    }
+  </style>
+  </style>
+  <style>
+    .circular-diagram .mermaid svg {
+      margin: 0 auto;
+      display: block;
+      max-width: 100%;
+      border-radius: 24px;
+      box-shadow: 0 4px 32px rgba(25, 118, 210, 0.10);
+      background: #fff;
+      padding: 1.5rem;
+    }
+    .circular-diagram .steps-list {
+      margin-top: 2.5rem;
+      border-top: 2px solid #e3f2fd;
+      padding-top: 2rem;
+    }
+  </style>
+  </section>
+
+  <section class="features" id="features">
+    <h2>Why Choose Us?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="about-icon"><img src="icons/claim.svg" alt="Fast Claims" width="48" height="48"></span>
+        <h3>Fast, Paperless Claims</h3>
+        <p>Submit and process claims quickly without paperwork or delays.</p>
+      </div>
+      <div class="feature-card">
+        <span class="about-icon"><img src="icons/secure.svg" alt="Secure Uploads" width="48" height="48"></span>
+        <h3>Secure Document Uploads</h3>
+        <p>Your documents are encrypted and stored safely in the cloud.</p>
+      </div>
+      <div class="feature-card">
+        <span class="about-icon"><img src="icons/tracking.svg" alt="Real-time Tracking" width="48" height="48"></span>
+        <h3>Real-time Claim Tracking</h3>
+        <p>Monitor your claim status and receive updates instantly.</p>
+      </div>
+      <div class="feature-card">
+        <span class="about-icon" style="background:#e3f2fd; border-radius:50%; padding:10px; display:inline-block;"><img src="icons/support.svg" alt="Support" width="48" height="48" style="display:block;"></span>
+        <h3>Dedicated Support</h3>
+        <p>Our team is here to help you every step of the way.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Additional Sections Start -->
+
+
+
+  <section class="blog" id="blog">
+    <h2>Blog & News</h2>
+    <div class="blog-list">
+      <div class="blog-item"><h3>5 Tips for a Smooth Claim</h3><p>Learn how to prepare and submit your claim for the fastest turnaround.</p></div>
+      <div class="blog-item"><h3>Understanding Funeral Cover</h3><p>What you need to know about funeral insurance in South Africa.</p></div>
+      <div class="blog-item"><h3>Digital Transformation in Insurance</h3><p>How technology is changing the claims process for the better.</p></div>
+    </div>
+  </section>
+
+  <section class="aboutus" id="aboutus">
+    <h2>About Us</h2>
+    <div class="aboutus-content">
+      <p>Smart Funeral Claims is dedicated to making the claims process as simple and transparent as possible. Our team combines years of experience in insurance and technology to serve South African families with care and efficiency.</p>
+      <ul>
+        <li>Founded: 2026</li>
+        <li>Headquarters: Johannesburg, South Africa</li>
+        <li>Team: 20+ professionals</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="resources" id="resources">
+    <h2>Resources &amp; Downloads</h2>
+    <p style="text-align:center;color:#555;font-size:1rem;margin:-1rem 0 2.2rem;">Download and print the documents you need for your claim. Each file opens in a new tab — use your browser's Print function to save as PDF.</p>
+    <div class="resources-list">
+
+      <!-- Claim Form -->
+      <div class="resource-card">
+        <div class="resource-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <div class="resource-card-body">
+          <div class="resource-card-badge">FORM</div>
+          <h3>Funeral Claim Form</h3>
+          <p>Official claim form including all sections: policy info, deceased details, claimant details, banking, and declaration.</p>
+        </div>
+        <a href="resources/claim-form.html" target="_blank" class="resource-dl-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Open &amp; Print
+        </a>
+      </div>
+
+      <!-- Policy Brochure -->
+      <div class="resource-card">
+        <div class="resource-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <div class="resource-card-body">
+          <div class="resource-card-badge">BROCHURE</div>
+          <h3>Policy Brochure</h3>
+          <p>Full breakdown of cover plans, benefits comparison, waiting periods, exclusions, and how to claim.</p>
+        </div>
+        <a href="resources/policy-brochure.html" target="_blank" class="resource-dl-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Open &amp; Print
+        </a>
+      </div>
+
+      <!-- Funeral Planning Guide -->
+      <div class="resource-card">
+        <div class="resource-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="resource-card-body">
+          <div class="resource-card-badge">GUIDE</div>
+          <h3>Funeral Planning Guide</h3>
+          <p>Step-by-step guide for families: immediate steps after a passing, arrangement checklist, cost estimates, and support resources.</p>
+        </div>
+        <a href="resources/funeral-planning-guide.html" target="_blank" class="resource-dl-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Open &amp; Print
+        </a>
+      </div>
+
+      <!-- Document Checklist -->
+      <div class="resource-card">
+        <div class="resource-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <div class="resource-card-body">
+          <div class="resource-card-badge">CHECKLIST</div>
+          <h3>Document Submission Checklist</h3>
+          <p>Detailed checklist of all required and conditional documents, with certification requirements and upload guidelines.</p>
+        </div>
+        <a href="resources/document-checklist.html" target="_blank" class="resource-dl-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Open &amp; Print
+        </a>
+      </div>
+
+      <!-- FAQ Guide -->
+      <div class="resource-card">
+        <div class="resource-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="resource-card-body">
+          <div class="resource-card-badge">FAQ</div>
+          <h3>Claims FAQ Guide</h3>
+          <p>Answers to the most common questions about the claims process, documents, cover, waiting periods, and privacy.</p>
+        </div>
+        <a href="resources/faq-guide.html" target="_blank" class="resource-dl-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Open &amp; Print
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- Additional Sections End -->
+
+  <footer>
+    <div class="footer-content">
+      <div>
+        <strong>Contact:</strong> info@smartfuneralclaims.com<br>
+        <strong>Phone:</strong> +1 234 567 8900
+      </div>
+      <div>
+        <strong>Address:</strong> 123 Blue Avenue, City, Country
+      </div>
+    </div>
+    <p>&copy; 2026 Smart Funeral Claims. All rights reserved.</p>
+  </footer>
+</body>
+</html>

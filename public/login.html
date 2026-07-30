@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Smart Funeral Claims</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: url('login.jpg') center/cover no-repeat fixed;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 30, 60, 0.62);
+      z-index: 0;
+    }
+    .navbar { position: relative; z-index: 10; }
+    .auth-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.97);
+      border-radius: 20px;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.35);
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(6px);
+    }
+    .auth-card .brand { display: flex; align-items: center; gap: 0.7rem; justify-content: center; margin-bottom: 1.5rem; }
+    .auth-card .brand img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .auth-card .brand span { font-size: 1.1rem; font-weight: 700; color: #1976d2; }
+    .auth-card h2 { color: #1565c0; text-align: center; margin: 0 0 0.4rem; font-size: 1.7rem; }
+    .auth-card .sub { text-align: center; color: #546e7a; font-size: .9rem; margin: 0 0 1.5rem; }
+    .auth-card input[type=email],
+    .auth-card input[type=password] {
+      display: block; width: 100%; margin-bottom: 1rem;
+      padding: 0.82rem 1rem; border-radius: 10px;
+      border: 1.5px solid #bbdefb; font-size: 1rem;
+      outline: none; transition: border .2s; background: #f6faff;
+    }
+    .auth-card input:focus { border-color: #1976d2; background: #fff; }
+    .auth-card button[type=submit] {
+      display: block; width: 100%; padding: 0.88rem;
+      background: linear-gradient(90deg, #1565c0, #42a5f5);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      letter-spacing: .03em; transition: opacity .2s, transform .1s; margin-top: .3rem;
+    }
+    .auth-card button[type=submit]:hover:not(:disabled) { opacity: .92; transform: translateY(-2px); }
+    .auth-card button[type=submit]:disabled { opacity: .65; cursor: not-allowed; }
+    .auth-card .link { color: #1976d2; font-size: .95rem; display: block; text-align: right; margin-bottom: .5rem; text-decoration: none; }
+    .auth-card .link:hover { text-decoration: underline; }
+    .auth-card .error { color: #d32f2f; text-align: center; font-size: .93rem; margin-top: .5rem; min-height: 1.2em; }
+    .auth-card .footer-text { text-align: center; margin-top: 1.2rem; color: #555; font-size: .97rem; }
+    .auth-card .footer-text a { color: #1976d2; font-weight: 600; text-decoration: none; }
+    .auth-card .footer-text a:hover { text-decoration: underline; }
+
+    /* ── OTP Step ── */
+    #step-otp { display: none; }
+    .otp-back-btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: none; border: none; color: #1976d2; font-size: .88rem;
+      cursor: pointer; padding: 0; margin-bottom: 1.1rem; font-weight: 600;
+    }
+    .otp-back-btn:hover { text-decoration: underline; }
+    .otp-email-pill {
+      display: inline-block; background: #e3f2fd; color: #1565c0;
+      border-radius: 20px; padding: .2rem .85rem; font-size: .83rem;
+      font-weight: 700; margin-bottom: 1.4rem; word-break: break-all;
+    }
+    .otp-info {
+      font-size: .88rem; color: #546e7a; text-align: center;
+      margin: 0 0 1.5rem; line-height: 1.5;
+    }
+    .otp-digits {
+      display: flex; gap: .55rem; justify-content: center; margin-bottom: 1.4rem;
+    }
+    .otp-digit {
+      width: 48px; height: 58px; border: 2px solid #bbdefb; border-radius: 12px;
+      font-size: 1.6rem; font-weight: 800; text-align: center; color: #1565c0;
+      background: #f6faff; outline: none; transition: border .2s, box-shadow .2s;
+      caret-color: #1565c0;
+    }
+    .otp-digit:focus { border-color: #1565c0; box-shadow: 0 0 0 3px rgba(21,101,192,.15); background: #fff; }
+    .otp-digit.filled { border-color: #1976d2; background: #e3f2fd; }
+    .otp-resend-row {
+      text-align: center; font-size: .85rem; color: #546e7a; margin-top: .8rem;
+    }
+    .otp-resend-btn {
+      background: none; border: none; color: #1976d2; font-size: .85rem;
+      font-weight: 700; cursor: pointer; padding: 0;
+    }
+    .otp-resend-btn:disabled { color: #90a4ae; cursor: not-allowed; }
+    .otp-resend-btn:not(:disabled):hover { text-decoration: underline; }
+    .otp-timer { color: #78909c; font-size: .8rem; }
+    .otp-shield {
+      display: flex; align-items: center; justify-content: center; gap: .45rem;
+      margin: 0 0 1.2rem; font-size: .78rem; color: #388e3c; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo-section">
+      <img src="logo.png" alt="Company Logo" class="logo">
+      <span class="company-name">Smart Funeral Claims</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="claims.html">Claims</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="brand"><img src="logo.png" alt="Logo"><span>Smart Funeral Claims</span></div>
+
+      <!-- ── Step 1: Email + Password ── -->
+      <div id="step-login">
+        <h2>Welcome Back</h2>
+        <p class="sub">Sign in to your account</p>
+        <form id="loginForm" autocomplete="on">
+          <input type="email" id="loginEmail" placeholder="Email address" autocomplete="username" required>
+          <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
+          <a class="link" href="reset.html">Forgot password?</a>
+          <button type="submit" id="loginBtn">Login</button>
+          <div id="loginError" class="error"></div>
+        </form>
+        <p class="footer-text">Don't have an account? <a href="register.html">Register</a></p>
+      </div>
+
+      <!-- ── Step 2: OTP Verification ── -->
+      <div id="step-otp">
+        <button class="otp-back-btn" id="otpBackBtn" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to login
+        </button>
+        <h2 style="margin-bottom:.4rem;">Check your email</h2>
+        <p class="sub" style="margin-bottom:.9rem;">We sent a 6-digit code to</p>
+        <div style="text-align:center;">
+          <span class="otp-email-pill" id="otpEmailDisplay"></span>
+        </div>
+        <p class="otp-info">Enter the code below. It expires in <strong>10 minutes</strong>.</p>
+
+        <form id="otpForm" autocomplete="off">
+          <div class="otp-digits" id="otpDigits">
+            <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="otp-0" aria-label="Digit 1">
+            <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="otp-1" aria-label="Digit 2">
+            <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="otp-2" aria-label="Digit 3">
+            <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="otp-3" aria-label="Digit 4">
+            <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="otp-4" aria-label="Digit 5">
+            <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" id="otp-5" aria-label="Digit 6">
+          </div>
+
+          <div class="otp-shield">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Secure verification — never share this code
+          </div>
+
+          <button type="submit" id="otpBtn">Verify Code</button>
+          <div id="otpError" class="error"></div>
+        </form>
+
+        <div class="otp-resend-row" style="margin-top:1.1rem;">
+          Didn't receive it?
+          <button class="otp-resend-btn" id="resendBtn" type="button" disabled>Resend code</button>
+          <span class="otp-timer" id="resendTimer"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script type="module">
+    import firebaseConfig from './firebaseConfig.js';
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    // ── State ────────────────────────────────────────────────
+    let pendingUid      = null;
+    let pendingEmail    = null;
+    let pendingPassword = null; // kept in memory only for resend re-auth
+    let resendInterval  = null;
+
+    // ── Helpers ──────────────────────────────────────────────
+    const errMap = {
+      'auth/user-not-found':     'No account found with that email.',
+      'auth/wrong-password':     'Incorrect password. Please try again.',
+      'auth/invalid-email':      'Invalid email address.',
+      'auth/too-many-requests':  'Too many attempts. Please try again later.',
+      'auth/invalid-credential': 'Incorrect email or password.'
+    };
+
+    function getNetworkHelpMessage() {
+      if (window.location.protocol === 'file:') {
+        return 'Network sign-in failed. Open this app through the backend server (http://localhost:5000/login.html), not as a local file.';
+      }
+      if (!navigator.onLine) {
+        return 'You appear to be offline. Reconnect to the internet and try again.';
+      }
+      return 'Network sign-in failed. Check your internet connection and confirm your Firebase project allows this domain in Authentication > Settings > Authorized domains.';
+    }
+
+    if (window.location.protocol === 'file:') {
+      const errEl = document.getElementById('loginError');
+      errEl.textContent = 'Run the site from http://localhost:5000/login.html for Firebase login.';
+      errEl.style.color = '#1565c0';
+    }
+
+    async function doPostLogin(user) {
+      await db.collection('users').doc(user.uid).set(
+        { lastLogin: firebase.firestore.FieldValue.serverTimestamp(), status: 'active' },
+        { merge: true }
+      );
+      await db.collection('activityLogs').add({
+        type:        'login',
+        userId:      user.uid,
+        userEmail:   user.email,
+        userName:    user.displayName || user.email,
+        description: `User logged in: ${user.email}`,
+        timestamp:   firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    function showOtpStep(email) {
+      document.getElementById('otpEmailDisplay').textContent = email;
+      document.getElementById('step-login').style.display = 'none';
+      document.getElementById('step-otp').style.display   = '';
+      clearOtpInputs();
+      document.getElementById('otp-0').focus();
+      startResendTimer(60);
+    }
+
+    function showLoginStep(msg) {
+      clearInterval(resendInterval);
+      document.getElementById('step-otp').style.display   = 'none';
+      document.getElementById('step-login').style.display = '';
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = false; btn.textContent = 'Login';
+      document.getElementById('loginPassword').value = '';
+      if (msg) {
+        const errEl = document.getElementById('loginError');
+        errEl.textContent = msg;
+        errEl.style.color = '#1565c0';
+      }
+      pendingUid = pendingPassword = null;
+    }
+
+    function clearOtpInputs() {
+      document.querySelectorAll('.otp-digit').forEach(i => {
+        i.value = ''; i.classList.remove('filled');
+      });
+      document.getElementById('otpError').textContent = '';
+      const btn = document.getElementById('otpBtn');
+      btn.disabled = false; btn.textContent = 'Verify Code';
+    }
+
+    function getOtpValue() {
+      return Array.from(document.querySelectorAll('.otp-digit')).map(i => i.value).join('');
+    }
+
+    function startResendTimer(secs) {
+      const btn   = document.getElementById('resendBtn');
+      const timer = document.getElementById('resendTimer');
+      btn.disabled = true;
+      clearInterval(resendInterval);
+      let remaining = secs;
+      timer.textContent = `(${remaining}s)`;
+      resendInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(resendInterval);
+          btn.disabled = false;
+          timer.textContent = '';
+        } else {
+          timer.textContent = `(${remaining}s)`;
+        }
+      }, 1000);
+    }
+
+    // ── OTP digit inputs behaviour ────────────────────────────
+    document.querySelectorAll('.otp-digit').forEach((inp, i, all) => {
+      inp.addEventListener('input', e => {
+        const v = e.target.value.replace(/\D/g, '');
+        e.target.value = v ? v[0] : '';
+        e.target.classList.toggle('filled', !!v);
+        if (v && i < all.length - 1) all[i + 1].focus();
+      });
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !inp.value && i > 0) all[i - 1].focus();
+      });
+      inp.addEventListener('paste', e => {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData)
+          .getData('text').replace(/\D/g, '').slice(0, 6);
+        all.forEach((el, j) => {
+          el.value = paste[j] || '';
+          el.classList.toggle('filled', !!el.value);
+        });
+        all[Math.min(paste.length, all.length - 1)].focus();
+      });
+    });
+
+    // ── Step 1: Login form ────────────────────────────────────
+    document.getElementById('loginForm').onsubmit = async e => {
+      e.preventDefault();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errEl    = document.getElementById('loginError');
+      const btn      = document.getElementById('loginBtn');
+      errEl.textContent = ''; errEl.style.color = '#d32f2f';
+      btn.disabled = true; btn.textContent = 'Signing in…';
+
+      try {
+        if (window.location.protocol === 'file:') {
+          errEl.textContent = getNetworkHelpMessage();
+          btn.disabled = false; btn.textContent = 'Login';
+          return;
+        }
+
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        const user = cred.user;
+        const idToken = await user.getIdToken();
+
+        pendingUid      = user.uid;
+        pendingEmail    = user.email;
+        pendingPassword = password; // stored only for potential resend re-auth
+
+        // Try to request OTP from server
+        let otpSent = false;
+        try {
+          const resp = await fetch('/api/send-otp', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ idToken })
+          });
+          const data = await resp.json();
+
+          if (resp.ok) {
+            otpSent = true;
+          } else if (resp.status === 503) {
+            // SMTP not configured — skip 2FA gracefully
+            otpSent = false;
+          } else {
+            await auth.signOut();
+            errEl.textContent = data.error || 'Could not send verification code.';
+            btn.disabled = false; btn.textContent = 'Login';
+            return;
+          }
+        } catch {
+          // Server unreachable — skip 2FA
+          otpSent = false;
+        }
+
+        if (!otpSent) {
+          // No OTP available — proceed directly
+          await doPostLogin(user);
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        // OTP sent — sign the user out until they verify
+        await auth.signOut();
+        showOtpStep(email);
+
+      } catch (err) {
+        if (err.code === 'auth/network-request-failed') {
+          errEl.textContent = getNetworkHelpMessage();
+        } else {
+          errEl.textContent = errMap[err.code] || err.message;
+        }
+        btn.disabled = false; btn.textContent = 'Login';
+      }
+    };
+
+    // ── Step 2: OTP form ──────────────────────────────────────
+    document.getElementById('otpForm').onsubmit = async e => {
+      e.preventDefault();
+      const code  = getOtpValue();
+      const errEl = document.getElementById('otpError');
+      const btn   = document.getElementById('otpBtn');
+      errEl.textContent = '';
+
+      if (code.length !== 6) {
+        errEl.textContent = 'Please enter all 6 digits.';
+        return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Verifying…';
+
+      try {
+        const resp = await fetch('/api/verify-otp', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ uid: pendingUid, code })
+        });
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          errEl.textContent = data.error || 'Verification failed.';
+          btn.disabled = false; btn.textContent = 'Verify Code';
+          // If server says to start over, return to login after short delay
+          if (/log.?in again|expired|attempts/i.test(data.error || '')) {
+            setTimeout(() => showLoginStep('Session expired. Please log in again.'), 2000);
+          }
+          return;
+        }
+
+        // Sign in with the server-issued custom token
+        await auth.signInWithCustomToken(data.customToken);
+        const user = auth.currentUser;
+        pendingPassword = null; // clear stored password
+        await doPostLogin(user);
+        window.location.href = 'dashboard.html';
+
+      } catch (err) {
+        errEl.textContent = err.message;
+        btn.disabled = false; btn.textContent = 'Verify Code';
+      }
+    };
+
+    // ── Resend code ───────────────────────────────────────────
+    document.getElementById('resendBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('otpError');
+      errEl.textContent = '';
+
+      if (!pendingEmail || !pendingPassword) {
+        showLoginStep('Please log in again to resend the code.');
+        return;
+      }
+
+      const btn = document.getElementById('resendBtn');
+      btn.disabled = true;
+
+      try {
+        // Re-authenticate to get a fresh ID token
+        const cred    = await auth.signInWithEmailAndPassword(pendingEmail, pendingPassword);
+        const idToken = await cred.user.getIdToken();
+        await auth.signOut(); // sign out again — OTP not yet verified
+
+        const resp = await fetch('/api/resend-otp', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ idToken })
+        });
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          errEl.textContent = data.error || 'Could not resend code.';
+          btn.disabled = false;
+          return;
+        }
+
+        clearOtpInputs();
+        document.getElementById('otp-0').focus();
+        errEl.style.color = '#2e7d32';
+        errEl.textContent = '✔ New code sent! Check your email.';
+        setTimeout(() => { errEl.textContent = ''; errEl.style.color = '#d32f2f'; }, 4000);
+        startResendTimer(60);
+
+      } catch (err) {
+        errEl.textContent = 'Could not resend. Please log in again.';
+        btn.disabled = false;
+      }
+    });
+
+    // ── Back button ───────────────────────────────────────────
+    document.getElementById('otpBackBtn').addEventListener('click', () => {
+      showLoginStep('');
+    });
+  </script>
+</body>
+</html>

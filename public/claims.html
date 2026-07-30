@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claims | Smart Funeral Claims</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── Page hero ── */
+    .claims-hero {
+      background: url('hero-bg.jpg') center/cover no-repeat;
+      position: relative;
+      min-height: 320px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .claims-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,30,60,0.65);
+    }
+    .claims-hero-content {
+      position: relative; z-index: 1; text-align: center; padding: 3rem 1rem;
+    }
+    .claims-hero-content h1 { color: #fff; font-size: 2.6rem; margin: 0 0 0.8rem; }
+    .claims-hero-content p  { color: #bbdefb; font-size: 1.15rem; max-width: 600px; margin: 0 auto 1.5rem; }
+    .claims-hero-content a.cta-btn {
+      display: inline-block; padding: 0.85rem 2rem;
+      background: linear-gradient(90deg,#1976d2,#42a5f5); color: #fff;
+      border-radius: 10px; font-weight: 700; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .claims-hero-content a.cta-btn:hover { opacity: 0.88; }
+
+    /* ── Shared section ── */
+    .page-section { padding: 4rem 1rem; max-width: 1100px; margin: 0 auto; }
+    .page-section h2 { color: #1565c0; font-size: 2rem; margin-bottom: 2rem; text-align: center; }
+
+    /* ── How to claim steps ── */
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 1.5rem;
+    }
+    .step-card {
+      background: #f6faff; border: 2px solid #bbdefb; border-radius: 16px;
+      padding: 1.8rem 1.4rem; text-align: center;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .step-card:hover { box-shadow: 0 8px 32px rgba(25,118,210,0.13); transform: translateY(-4px); }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg,#1976d2,#42a5f5);
+      color: #fff; font-size: 1.4rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .step-card h3 { color: #1565c0; margin: 0 0 0.5rem; }
+    .step-card p  { color: #444; font-size: 0.97rem; margin: 0; }
+
+    /* ── Required documents ── */
+    .docs-section { background: #e3f2fd; padding: 4rem 1rem; }
+    .docs-section h2 { color: #1565c0; font-size: 2rem; text-align: center; margin-bottom: 2rem; }
+    .docs-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 1.2rem; max-width: 1100px; margin: 0 auto;
+    }
+    .doc-item {
+      background: #fff; border-radius: 12px; padding: 1.3rem 1.2rem;
+      display: flex; align-items: flex-start; gap: 0.8rem;
+      box-shadow: 0 2px 10px rgba(25,118,210,0.07);
+    }
+    .doc-icon { width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #e3f2fd; border-radius: 10px; padding: 8px; }
+    .doc-icon svg { width: 28px; height: 28px; display: block; }
+    .doc-item h4 { color: #1976d2; margin: 0 0 0.3rem; font-size: 1rem; }
+    .doc-item p  { color: #555; font-size: 0.9rem; margin: 0; }
+
+    /* ── Testimonials ── */
+    .testimonials-section { background: #fff; padding: 4rem 1rem; }
+    .testimonials-section h2 { color: #1565c0; font-size: 2rem; text-align: center; margin-bottom: 2rem; }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+      gap: 1.8rem; max-width: 1100px; margin: 0 auto;
+    }
+    .testimonial-card {
+      background: #f6faff; border-radius: 18px; padding: 2rem 1.6rem;
+      border-left: 5px solid #1976d2;
+      box-shadow: 0 4px 20px rgba(25,118,210,0.08);
+      position: relative;
+    }
+    .testimonial-card .quote { font-size: 3rem; color: #bbdefb; line-height: 1; margin-bottom: 0.5rem; }
+    .testimonial-card p { color: #333; font-size: 1rem; font-style: italic; margin: 0 0 1.2rem; }
+    .testimonial-author { display: flex; align-items: center; gap: 0.8rem; }
+    .testimonial-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg,#1976d2,#42a5f5);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .testimonial-author-info strong { display: block; color: #1565c0; font-size: 0.97rem; }
+    .testimonial-author-info span   { color: #888; font-size: 0.87rem; }
+    .stars { color: #fdd835; font-size: 1rem; margin-bottom: 0.6rem; }
+
+    /* ── FAQ ── */
+    .faq-section { background: #f6faff; padding: 4rem 1rem; }
+    .faq-section h2 { color: #1565c0; font-size: 2rem; text-align: center; margin-bottom: 2rem; }
+    .faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+    .faq-item { background: #fff; border-radius: 12px; border: 1.5px solid #bbdefb; overflow: hidden; }
+    .faq-question {
+      width: 100%; background: none; border: none; text-align: left;
+      padding: 1.1rem 1.4rem; font-size: 1.02rem; font-weight: 600; color: #1565c0;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-question:hover { background: #e3f2fd; }
+    .faq-question .faq-icon { font-size: 1.3rem; color: #1976d2; transition: transform 0.3s; }
+    .faq-answer { padding: 0 1.4rem; max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.25s; }
+    .faq-answer.open { max-height: 300px; padding: 0.8rem 1.4rem 1.2rem; }
+    .faq-answer p { color: #444; margin: 0; font-size: 0.97rem; line-height: 1.65; }
+
+    /* ── CTA banner ── */
+    .cta-banner {
+      background: linear-gradient(90deg,#1565c0,#42a5f5);
+      padding: 3.5rem 1rem; text-align: center;
+    }
+    .cta-banner h2 { color: #fff; font-size: 2rem; margin: 0 0 0.7rem; }
+    .cta-banner p  { color: #e3f2fd; font-size: 1.05rem; margin: 0 0 1.5rem; }
+    .cta-banner a  {
+      display: inline-block; padding: 0.85rem 2.2rem;
+      background: #fff; color: #1565c0; font-weight: 700;
+      border-radius: 10px; text-decoration: none;
+      transition: box-shadow 0.2s;
+    }
+    .cta-banner a:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+
+    /* ── Claim submission form ── */
+    .submit-section {
+      background: #f0f7ff;
+      padding: 4rem 1rem;
+    }
+    .submit-section h2 {
+      color: #1565c0; font-size: 2rem; text-align: center; margin: 0 0 0.5rem;
+    }
+    .submit-section .sub-desc {
+      text-align: center; color: #546e7a; margin: 0 0 2.5rem; font-size: 1rem;
+    }
+    .submit-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(21,101,192,0.10);
+      padding: 2.5rem 2rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Login gate */
+    .login-gate {
+      text-align: center; padding: 2.5rem 1rem;
+    }
+    .login-gate svg { color: #1976d2; margin-bottom: 1rem; }
+    .login-gate h3 { color: #1565c0; margin: 0 0 0.5rem; font-size: 1.3rem; }
+    .login-gate p  { color: #546e7a; margin: 0 0 1.5rem; }
+    .login-gate a  {
+      display: inline-block; padding: 0.75rem 2rem;
+      background: linear-gradient(90deg,#1565c0,#42a5f5); color: #fff;
+      border-radius: 10px; font-weight: 700; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .login-gate a:hover { opacity: 0.88; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:600px){ .form-row { grid-template-columns: 1fr; } }
+
+    .field-group { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+    .field-group label { font-size: 0.85rem; font-weight: 700; color: #1a2744; }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      border: 1.5px solid #bbdefb; border-radius: 10px;
+      padding: 0.72rem 0.95rem; font-size: 0.95rem; outline: none;
+      transition: border-color 0.2s; background: #f6faff; color: #222;
+      font-family: inherit;
+    }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color: #1976d2; background: #fff; }
+    .field-group textarea { resize: vertical; min-height: 90px; }
+
+    .file-upload-area {
+      border: 2px dashed #90caf9; border-radius: 12px;
+      padding: 1.5rem; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #f6faff;
+    }
+    .file-upload-area:hover { border-color: #1976d2; background: #e3f2fd; }
+    .file-upload-area input[type=file] { display: none; }
+    .file-upload-area svg { color: #1976d2; margin-bottom: 0.5rem; }
+    .file-upload-area p { margin: 0; color: #546e7a; font-size: 0.9rem; }
+    .file-upload-area .file-hint { font-size: 0.78rem; color: #90a4ae; margin-top: 0.3rem; }
+    #fileList { margin-top: 0.8rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .file-chip {
+      background: #e3f2fd; color: #1565c0; border-radius: 20px;
+      padding: 0.25rem 0.75rem; font-size: 0.8rem; font-weight: 600;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .file-chip button {
+      background: none; border: none; cursor: pointer; color: #1976d2;
+      font-size: 1rem; line-height: 1; padding: 0;
+    }
+
+    .submit-btn {
+      display: block; width: 100%; padding: 0.95rem;
+      background: linear-gradient(90deg,#1565c0,#42a5f5);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      margin-top: 1.5rem; transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .submit-btn:hover { opacity: 0.92; transform: translateY(-2px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+    .form-message {
+      border-radius: 10px; padding: 0.85rem 1.1rem;
+      font-size: 0.93rem; font-weight: 600; margin-top: 1rem;
+      display: none;
+    }
+    .form-message.success { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; }
+    .form-message.error   { background: #fdecea; color: #c62828; border: 1.5px solid #f5c6cb; }
+
+    .success-state { text-align: center; padding: 2rem 1rem; display: none; }
+    .success-state svg { color: #2e7d32; margin-bottom: 1rem; }
+    .success-state h3 { color: #2e7d32; margin: 0 0 0.5rem; font-size: 1.4rem; }
+    .success-state p  { color: #444; margin: 0 0 1.5rem; }
+    .success-state .ref-box {
+      background: #e8f5e9; border: 1.5px solid #a5d6a7; border-radius: 10px;
+      display: inline-block; padding: 0.6rem 1.4rem; font-weight: 700;
+      color: #1b5e20; font-size: 1.05rem; margin-bottom: 1.5rem;
+    }
+    .success-state a {
+      display: inline-block; padding: 0.7rem 1.8rem;
+      background: linear-gradient(90deg,#1565c0,#42a5f5); color: #fff;
+      border-radius: 10px; font-weight: 700; text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo-section">
+      <img src="logo.png" alt="Company Logo" class="logo">
+      <span class="company-name">Smart Funeral Claims</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="claims.html" class="active">Claims</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <div class="claims-hero">
+    <div class="claims-hero-content">
+      <h1>File Your Funeral Claim</h1>
+      <p>We make the claims process simple, fast, and transparent — so you can focus on what matters most.</p>
+      <a href="login.html" class="cta-btn">Get Started &rarr;</a>
+    </div>
+  </div>
+
+  <!-- ── How to Claim ── -->
+  <section class="page-section">
+    <h2>How to File a Claim</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Register / Login</h3>
+        <p>Create your account or log in to access the claims portal securely.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Start a New Claim</h3>
+        <p>Click "New Claim" on your dashboard and select the claim type (death, disability, etc.).</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Fill in Details</h3>
+        <p>Provide the policy number, claimant details, and information about the deceased.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>Upload Documents</h3>
+        <p>Securely upload all required supporting documents directly through the portal.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <h3>Submit & Track</h3>
+        <p>Submit your claim and track its progress in real time with instant notifications.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">6</div>
+        <h3>Receive Payout</h3>
+        <p>Once approved, funds are transferred directly to the nominated beneficiary account.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Required Documents ── -->
+  <div class="docs-section">
+    <h2>Required Documents</h2>
+    <div class="docs-grid">
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <circle cx="12" cy="14" r="2.5"/>
+            <line x1="9" y1="19" x2="15" y2="19"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Death Certificate</h4>
+          <p>Official certified copy issued by the Department of Home Affairs.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="8" cy="12" r="2"/>
+            <path d="M5 17c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2"/>
+            <line x1="14" y1="10" x2="19" y2="10"/>
+            <line x1="14" y1="14" x2="17" y2="14"/>
+          </svg>
+        </div>
+        <div>
+          <h4>ID of Deceased</h4>
+          <p>Certified copy of the deceased's South African ID or passport.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="8" cy="11" r="2"/>
+            <path d="M5 17c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2"/>
+            <line x1="14" y1="10" x2="19" y2="10"/>
+            <polyline points="15 14 16.5 15.5 19 13"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Claimant's ID</h4>
+          <p>Certified copy of the claimant's valid SA ID document.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Policy Document</h4>
+          <p>Copy of the funeral insurance policy certificate.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="22" x2="21" y2="22"/>
+            <line x1="6" y1="18" x2="6" y2="11"/>
+            <line x1="10" y1="18" x2="10" y2="11"/>
+            <line x1="14" y1="18" x2="14" y2="11"/>
+            <line x1="18" y1="18" x2="18" y2="11"/>
+            <polygon points="12 2 20 7 4 7"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Bank Statement</h4>
+          <p>Most recent 3-month bank statement for payout verification.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Proof of Relationship</h4>
+          <p>Marriage certificate, birth certificate, or affidavit where applicable.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+            <line x1="12" y1="8" x2="12" y2="14"/>
+            <line x1="9" y1="11" x2="15" y2="11"/>
+            <line x1="9" y1="17" x2="15" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Medical Records</h4>
+          <p>Required if cause of death is relevant to the policy claim type.</p>
+        </div>
+      </div>
+      <div class="doc-item">
+        <div class="doc-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <polyline points="9 13 11 15 15 11"/>
+            <line x1="9" y1="18" x2="15" y2="18"/>
+          </svg>
+        </div>
+        <div>
+          <h4>Completed Claim Form</h4>
+          <p>Fully completed and signed claim form (available in Resources).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Testimonials ── -->
+  <div class="testimonials-section">
+    <h2>What Our Clients Say</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="quote">&ldquo;</div>
+        <div class="stars">★★★★★</div>
+        <p>The process was incredibly smooth. I submitted all documents online and received the payout within 5 days. During such a difficult time, this was a huge relief.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">TM</div>
+          <div class="testimonial-author-info">
+            <strong>Thandi Mokoena</strong>
+            <span>Johannesburg, Gauteng</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote">&ldquo;</div>
+        <div class="stars">★★★★★</div>
+        <p>I was worried it would be complicated, but the step-by-step guide made everything clear. The support team responded within hours. Truly professional service.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SN</div>
+          <div class="testimonial-author-info">
+            <strong>Sipho Nkosi</strong>
+            <span>Durban, KwaZulu-Natal</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote">&ldquo;</div>
+        <div class="stars">★★★★☆</div>
+        <p>As someone who is not tech-savvy, I appreciated how simple the portal is. My claim was approved in under a week. I will recommend this to everyone in my family.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">ND</div>
+          <div class="testimonial-author-info">
+            <strong>Nokwanda Dlamini</strong>
+            <span>Cape Town, Western Cape</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FAQ ── -->
+  <div class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          How long does it take to process a claim?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Most claims are processed within 5–7 business days once all required documents have been received and verified. Complex cases may take slightly longer, and you will be kept informed throughout.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Can I submit a claim on behalf of a family member?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes. Any nominated beneficiary or legal representative may submit a claim. You will need to provide proof of relationship and your own identification alongside the deceased's documents.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          What file formats are accepted for document uploads?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>We accept PDF, JPG, PNG, and DOCX files up to 10 MB per document. Scanned copies must be clear and legible. Blurry or incomplete documents may delay processing.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Is my personal information safe on this platform?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Absolutely. All data is encrypted in transit and at rest. We comply with POPIA (Protection of Personal Information Act) and use Firebase's enterprise-grade security infrastructure.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          What happens if my claim is rejected?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>You will receive a detailed written explanation of the reason for rejection. You have the right to appeal within 30 days by submitting additional documentation or a formal appeal letter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Claim Submission Form ── -->
+  <section class="submit-section" id="submit-claim">
+    <h2>Submit a Claim</h2>
+    <p class="sub-desc">Fill in the form below and upload your supporting documents. We'll review your claim within 5–7 business days.</p>
+
+    <div class="submit-card">
+
+      <!-- Shown when user is NOT logged in -->
+      <div class="login-gate" id="loginGate">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <h3>Login Required</h3>
+        <p>You need to be logged in to submit a claim. It only takes a minute to create a free account.</p>
+        <a href="login.html">Login to Continue &rarr;</a>
+        <p style="margin-top:1rem;color:#888;font-size:0.9rem;">Don't have an account? <a href="register.html" style="color:#1976d2;font-weight:600;">Register free</a></p>
+      </div>
+
+      <!-- Shown after successful submission -->
+      <div class="success-state" id="successState">
+        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h3>Claim Submitted Successfully!</h3>
+        <p>Your claim has been received. We'll review it and get back to you within 5–7 business days.</p>
+        <div class="ref-box" id="claimRefBox">Ref: —</div>
+        <br>
+        <a href="index.html">Back to Home</a>
+      </div>
+
+      <!-- The actual form (hidden until auth confirmed) -->
+      <form id="claimForm" style="display:none;" novalidate>
+
+        <div class="form-row">
+          <div class="field-group">
+            <label>Policy Number *</label>
+            <input type="text" id="cf-policyNumber" placeholder="e.g. SFC-2024-001234" required>
+          </div>
+          <div class="field-group">
+            <label>Claim Type *</label>
+            <select id="cf-claimType" required>
+              <option value="">— Select claim type —</option>
+              <option value="death_benefit">Death Benefit</option>
+              <option value="funeral_cover">Funeral Cover</option>
+              <option value="accidental_death">Accidental Death</option>
+              <option value="repatriation">Repatriation</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field-group">
+            <label>Claimant Full Name *</label>
+            <input type="text" id="cf-claimantName" placeholder="Your full name" required>
+          </div>
+          <div class="field-group">
+            <label>Claimant ID Number *</label>
+            <input type="text" id="cf-claimantId" placeholder="SA ID Number" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field-group">
+            <label>Deceased Full Name *</label>
+            <input type="text" id="cf-deceasedName" placeholder="Full name of the deceased" required>
+          </div>
+          <div class="field-group">
+            <label>Date of Death *</label>
+            <input type="date" id="cf-dateOfDeath" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field-group">
+            <label>Relationship to Deceased *</label>
+            <select id="cf-relationship" required>
+              <option value="">— Select relationship —</option>
+              <option value="spouse">Spouse / Partner</option>
+              <option value="child">Child</option>
+              <option value="parent">Parent</option>
+              <option value="sibling">Sibling</option>
+              <option value="beneficiary">Named Beneficiary</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Contact Phone Number *</label>
+            <input type="tel" id="cf-phone" placeholder="+27 XX XXX XXXX" required>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Bank Account for Payout *</label>
+          <input type="text" id="cf-bankAccount" placeholder="Bank name, Account number (e.g. FNB, 62XXXXXXXXX)" required>
+        </div>
+
+        <div class="field-group">
+          <label>Additional Notes</label>
+          <textarea id="cf-notes" placeholder="Any additional information relevant to this claim…"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label style="display:flex;align-items:center;gap:.5rem;">
+            Supporting Documents
+            <span style="background:#fce4ec;color:#c62828;font-size:.67rem;font-weight:800;padding:.12rem .42rem;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;">5 Required</span>
+          </label>
+          <div class="doc-slots-grid-c" id="cDocSlotsGrid"></div>
+          <div class="dsc-progress">
+            <span id="cDocProgressText">0 of 5 required documents uploaded</span>
+            <div class="dsc-progress-bar"><div class="dsc-progress-fill" id="cDocProgressFill" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="form-message" id="formMsg"></div>
+        <button type="submit" class="submit-btn" id="submitBtn">Submit Claim</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ── CTA Banner ── -->
+  <div class="cta-banner">
+    <h2>Need Help Filing?</h2>
+    <p>Our support team is available Monday–Friday, 8am–5pm.</p>
+    <a href="contact.html">Contact Us &rarr;</a>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div>
+        <strong>Contact:</strong> info@smartfuneralclaims.com<br>
+        <strong>Phone:</strong> +27 11 234 5678
+      </div>
+      <div>
+        <strong>Address:</strong> 123 Blue Avenue, Johannesburg, South Africa
+      </div>
+    </div>
+    <p>&copy; 2026 Smart Funeral Claims. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const icon = btn.querySelector('.faq-icon');
+      const isOpen = answer.classList.contains('open');
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-icon').forEach(i => { i.textContent = '+'; i.style.transform = ''; });
+      if (!isOpen) {
+        answer.classList.add('open');
+        icon.textContent = '−';
+        icon.style.transform = 'rotate(0deg)';
+      }
+    }
+  </script>
+
+  <script type="module">
+    import firebaseConfig from './firebaseConfig.js';
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    let currentUser = null;
+
+    // ── Document slot definitions ────────────────────────────
+    const DOC_SLOTS_C = [
+      { id: 'death_cert',  label: 'Certified Death Certificate', hint: 'Certified copy from Dept. of Home Affairs (BI-1663)',  required: true  },
+      { id: 'claimant_id', label: "Claimant's SA ID / Passport",  hint: 'Your valid identity document or passport',            required: true  },
+      { id: 'deceased_id', label: "Deceased's SA ID / Passport",  hint: 'Identity document of the deceased',                  required: true  },
+      { id: 'policy_doc',  label: 'Policy / Membership Document', hint: 'Your policy certificate or membership card',          required: true  },
+      { id: 'bank_stmt',   label: 'Bank Statement (3 months)',     hint: 'Recent statement for the payout account',            required: true  },
+      { id: 'proof_rel',   label: 'Proof of Relationship',         hint: 'Marriage cert, birth cert, or affidavit',            required: false },
+    ];
+    let docFilesC = {};
+
+    function renderDocSlotsC() {
+      const grid = document.getElementById('cDocSlotsGrid');
+      if (!grid) return;
+      const reqSlots    = DOC_SLOTS_C.filter(s => s.required);
+      const uploadedReq = reqSlots.filter(s => docFilesC[s.id]).length;
+      const uploadedAll = Object.keys(docFilesC).length;
+      grid.innerHTML = DOC_SLOTS_C.map(slot => {
+        const file = docFilesC[slot.id]; const uploaded = !!file;
+        const svgDoc = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1976d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`;
+        const svgCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const svgUp = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#90a4ae" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`;
+        const svgOk = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        return `
+        <div class="doc-slot-c${uploaded ? ' uploaded' : ''}" ${!uploaded ? `onclick="triggerSlotC('${slot.id}')"` : ''}>
+          <input type="file" id="cSlotInput-${slot.id}" accept=".pdf,.jpg,.jpeg,.png"
+                 style="display:none" onchange="onSlotFileC('${slot.id}',this)">
+          <div class="dsc-header">
+            <div class="dsc-icon">${uploaded ? svgCheck : svgDoc}</div>
+            <div class="dsc-meta">
+              <div class="dsc-name">${slot.label}</div>
+              <div class="dsc-hint">${slot.hint}</div>
+            </div>
+            <span class="dsc-badge ${slot.required ? 'dsc-req' : 'dsc-opt'}">${slot.required ? 'Required' : 'Optional'}</span>
+          </div>
+          <div class="dsc-status ${uploaded ? 'filled' : 'empty'}">
+            ${uploaded
+              ? `${svgOk}<span class="dsc-filename">${file.name}</span><button type="button" class="dsc-remove" onclick="removeSlotC('${slot.id}',event)">✕</button>`
+              : `${svgUp}<span>Click to upload</span>`
+            }
+          </div>
+        </div>`;
+      }).join('');
+      const pct = reqSlots.length ? Math.round((uploadedReq / reqSlots.length) * 100) : 0;
+      document.getElementById('cDocProgressFill').style.width = pct + '%';
+      const optExtra = uploadedAll > uploadedReq ? ` (+${uploadedAll - uploadedReq} optional)` : '';
+      document.getElementById('cDocProgressText').textContent =
+        `${uploadedReq} of ${reqSlots.length} required documents uploaded${optExtra}`;
+    }
+
+    window.triggerSlotC  = id => document.getElementById('cSlotInput-' + id).click();
+    window.onSlotFileC   = (id, inp) => { if (inp.files.length) { docFilesC[id] = inp.files[0]; renderDocSlotsC(); } };
+    window.removeSlotC   = (id, ev) => { ev.stopPropagation(); delete docFilesC[id]; const i = document.getElementById('cSlotInput-'+id); if(i) i.value=''; renderDocSlotsC(); };
+
+    // ── Auth gate ────────────────────────────────────────────
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if (user) {
+        document.getElementById('loginGate').style.display  = 'none';
+        document.getElementById('claimForm').style.display  = 'block';
+        if (user.displayName) {
+          document.getElementById('cf-claimantName').value = user.displayName;
+        }
+        renderDocSlotsC();
+      } else {
+        document.getElementById('loginGate').style.display  = 'block';
+        document.getElementById('claimForm').style.display  = 'none';
+      }
+    });
+
+    // (file upload handled by per-slot functions above)
+
+    // ── Form submission ──────────────────────────────────────
+    document.getElementById('claimForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const btn   = document.getElementById('submitBtn');
+      const msgEl = document.getElementById('formMsg');
+      msgEl.style.display = 'none';
+
+      // Validation
+      const policyNumber   = document.getElementById('cf-policyNumber').value.trim();
+      const claimType      = document.getElementById('cf-claimType').value;
+      const claimantName   = document.getElementById('cf-claimantName').value.trim();
+      const claimantId     = document.getElementById('cf-claimantId').value.trim();
+      const deceasedName   = document.getElementById('cf-deceasedName').value.trim();
+      const dateOfDeath    = document.getElementById('cf-dateOfDeath').value;
+      const relationship   = document.getElementById('cf-relationship').value;
+      const phone          = document.getElementById('cf-phone').value.trim();
+      const bankAccount    = document.getElementById('cf-bankAccount').value.trim();
+      const notes          = document.getElementById('cf-notes').value.trim();
+
+      if (!policyNumber || !claimType || !claimantName || !claimantId ||
+          !deceasedName || !dateOfDeath || !relationship || !phone || !bankAccount) {
+        msgEl.textContent    = 'Please fill in all required fields.';
+        msgEl.className      = 'form-message error';
+        msgEl.style.display  = 'block';
+        return;
+      }
+      const missingRequired = DOC_SLOTS_C.filter(s => s.required && !docFilesC[s.id]).map(s => s.label);
+      if (missingRequired.length) {
+        msgEl.textContent    = `Please upload: ${missingRequired.join(', ')}.`;
+        msgEl.className      = 'form-message error';
+        msgEl.style.display  = 'block';
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Submitting…';
+
+      try {
+        // Save claim to Firestore
+        const claimRef = await db.collection('claims').add({
+          userId:        currentUser.uid,
+          claimantEmail: currentUser.email,
+          claimantName,
+          claimantId,
+          policyNumber,
+          claimType,
+          deceasedName,
+          dateOfDeath,
+          relationship,
+          phone,
+          bankAccount,
+          notes,
+          documentNames: DOC_SLOTS_C.filter(s => docFilesC[s.id]).map(s => `${s.label}: ${docFilesC[s.id].name}`),
+          documentSlots: DOC_SLOTS_C.reduce((acc, s) => { if (docFilesC[s.id]) acc[s.id] = docFilesC[s.id].name; return acc; }, {}),
+          status:        'pending',
+          submittedAt:   firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Log activity
+        await db.collection('activityLogs').add({
+          type:        'claim_submitted',
+          userId:      currentUser.uid,
+          userEmail:   currentUser.email,
+          userName:    claimantName,
+          description: `Claim submitted for policy ${policyNumber} by ${claimantName}`,
+          claimId:     claimRef.id,
+          timestamp:   firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Show success state
+        document.getElementById('claimForm').style.display    = 'none';
+        document.getElementById('claimRefBox').textContent    = `Ref: ${claimRef.id.slice(0,12).toUpperCase()}`;
+        document.getElementById('successState').style.display = 'block';
+
+      } catch (err) {
+        msgEl.textContent   = 'Submission failed: ' + err.message;
+        msgEl.className     = 'form-message error';
+        msgEl.style.display = 'block';
+        btn.disabled    = false;
+        btn.textContent = 'Submit Claim';
+      }
+    });
+  </script>
+</body>
+</html>
