@@ -1,4 +1,4 @@
-# Smart Funeral Claims Platform
+# Smart Funeral Claims Platform (SFC)
 
 A web-based system to automate and streamline the funeral insurance claims process. Built with Node.js, Firebase, and EmailJS.
 
