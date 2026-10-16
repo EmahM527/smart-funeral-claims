@@ -32,3 +32,5 @@ A web-based system to automate and streamline the funeral insurance claims proce
 
 ---
 Replace placeholders with your actual Firebase and EmailJS config.
+Author Emah Mtsweni 
+student no: 402307830 
