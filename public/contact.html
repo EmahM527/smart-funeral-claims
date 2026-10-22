@@ -187,13 +187,13 @@
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
-    (function() { emailjs.init({ publicKey: 'YOUR_EMAILJS_PUBLIC_KEY' }); })();
+    (function() { emailjs.init({ publicKey: 'JqUnxv7LqvEx9hoei' }); })();
     document.getElementById('contactForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const status = document.getElementById('contactStatus');
       status.style.color = '#1976d2';
       status.textContent = 'Sending...';
-      emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+      emailjs.send('service_ond69gr', 'template_khy6whs', {
         from_name:  document.getElementById('contactName').value,
         from_email: document.getElementById('contactEmail').value,
         subject:    document.getElementById('contactSubject').value,
